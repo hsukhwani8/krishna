@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gopi Dots Quiz</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      background-image: url('radha-krishna.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: scroll;
+      color: #000;
+      backdrop-filter: brightness(90%);
+      min-height: 100vh;
+    }
+    .tab { display: none; }
+    .active { display: block; }
+    .avatar-button {
+      margin: 5px;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    input, button {
+      padding: 8px;
+      margin: 5px 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    #questionArea button {
+      background-color: #fff;
+      margin: 3px;
+      border: 1px solid #999;
+    }
+    @media screen and (max-width: 600px) {
+      body {
+        padding: 10px;
+      }
+      h1, h2 {
+        font-size: 1.4em;
+      }
+      input, button {
+        width: 100%;
+        font-size: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>🌹 Gopi Dots Quiz</h1>
+
+  <div>
+    <button onclick="showTab('userTab')">User</button>
+    <button onclick="showTab('avatarTab')">Avatar</button>
+    <button onclick="showTab('quizTab')">Quiz</button>
+  </div>
+
+  <div id="userTab" class="tab active">
+    <h2>User Info</h2>
+    Name: <input id="fullName"><br>
+    Mobile: <input id="mobileNumber"><br>
+    <button onclick="showTab('avatarTab')">Save & Next</button>
+  </div>
+
+  <div id="avatarTab" class="tab">
+    <h2>Select Avatar</h2>
+    <div id="avatarList"></div>
+  </div>
+
+  <div id="quizTab" class="tab">
+    <h2>Question</h2>
+    <p id="selectedAvatarDisplay">Selected Avatar: ❌ None</p>
+    Question Number: <input type="number" id="questionNumberInput"><br>
+    <button onclick="showQuestion()">Get Question</button>
+    <div id="questionArea"></div>
+  </div>
+
+  <script>
+    const avatars = ["Matsya", "Kurma", "Varaha", "Narasimha", "Vamana", "Parashurama", "Rama", "Krishna", "Buddha", "Kalki"];
+    let selectedAvatarIndex = null;
+    let resultDatabase = [];
+
+    const questions = {
+      21: { question: "What animal form did Lord Vishnu take in the Kurma avatar?", options: ["Fish", "Boar", "Turtle", "Lion"], answer: "C" },
+      22: { question: "What was the main event during which Lord Vishnu took the Kurma avatar?", options: ["Battle of Kurukshetra", "Samudra Manthan", "Rama’s exile", "Bridge to Lanka"], answer: "B" },
+      27: { question: "What were the Devas and Asuras trying to get from the ocean?", options: ["Gold", "Lakshmi", "Amrita", "A divine weapon"], answer: "C" },
+      61: { question: "Who was the sage father of Parashurama?", options: ["Jamadagni", "Atri", "Kashyapa", "Vasishtha"], answer: "A" }
+    };
+
+    function showTab(id) {
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    function renderAvatarButtons() {
+      const container = document.getElementById("avatarList");
+      avatars.forEach((name, idx) => {
+        const btn = document.createElement("div");
+        btn.innerText = name;
+        btn.className = "avatar-button";
+        btn.onclick = () => {
+          selectedAvatarIndex = idx + 1;
+          document.getElementById("selectedAvatarDisplay").innerText = "Selected Avatar: " + name;
+          showTab("quizTab");
+        };
+        container.appendChild(btn);
+      });
+    }
+
+    function showQuestion() {
+      const qn = parseInt(document.getElementById("questionNumberInput").value);
+      const qid = parseInt(`${selectedAvatarIndex}${qn}`);
+      const data = questions[qid];
+      const area = document.getElementById("questionArea");
+      if (!data) {
+        area.innerHTML = "❌ Question not available.";
+        return;
+      }
+      let html = `<p><b>Q${qid}: ${data.question}</b></p>`;
+      data.options.forEach((opt, idx) => {
+        const label = String.fromCharCode(65 + idx);
+        html += `<button onclick="checkAnswer('${label}', '${data.answer}', ${qid})">${label}) ${opt}</button><br>`;
+      });
+      area.innerHTML = html;
+    }
+
+    function checkAnswer(userAns, correctAns, qid) {
+      const isCorrect = userAns === correctAns;
+      alert(isCorrect ? "✅ Correct! Spin the wheel again." : "❌ Hare Krishna! Go to book table and study.");
+      resultDatabase.push({
+        name: document.getElementById("fullName").value,
+        mobile: document.getElementById("mobileNumber").value,
+        avatar: avatars[selectedAvatarIndex - 1],
+        questionId: qid,
+        selectedAnswer: userAns,
+        correct: isCorrect,
+        time: new Date().toLocaleString()
+      });
+      if (isCorrect) showTab('avatarTab');
+    }
+
+    window.onload = renderAvatarButtons;
+  </script>
+</body>
+</html>

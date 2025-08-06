@@ -122,17 +122,18 @@
   <div class="main-container">
     <h1>🌹 Gopi Dots Quiz</h1>
 
-    <div>
-      <button onclick="showTab('userTab')">User</button>
-      <button onclick="showTab('avatarTab')">Avatar</button>
-      <button onclick="showTab('quizTab')">Quiz</button>
-    </div>
+  <div>
+    <button onclick="tryShowTab('userTab')">User</button>
+    <button onclick="tryShowTab('avatarTab')">Avatar</button>
+    <button onclick="tryShowTab('quizTab')">Quiz</button>
+    <button onclick="tryShowTab('adminTab')">Admin</button>
+  </div>
 
     <div id="userTab" class="tab active">
       <h2>User Info</h2>
       Name: <input id="fullName"><br>
       Mobile: <input id="mobileNumber"><br>
-      <button onclick="showTab('avatarTab')">Save & Next</button>
+      <button onclick="saveUserInfo()">Save & Continue</button>
     </div>
 
     <div id="avatarTab" class="tab">
@@ -149,6 +150,7 @@
     </div>
   </div>
   <script>
+    const ADMIN_PASSWORD = "gopinath123"
     const avatars = ["Matsya", "Kurma", "Varaha", "Narasimha", "Vamana", "Parashurama", "Rama", "Krishna", "Buddha", "Kalki"];
     let selectedAvatarIndex = null;
     let resultDatabase = [];
@@ -159,22 +161,55 @@
       27: { question: "What were the Devas and Asuras trying to get from the ocean?", options: ["Gold", "Lakshmi", "Amrita", "A divine weapon"], answer: "C" },
       61: { question: "Who was the sage father of Parashurama?", options: ["Jamadagni", "Atri", "Kashyapa", "Vasishtha"], answer: "A" }
     };
+    function saveUserInfo() {
+      const name = document.getElementById("fullName").value.trim();
+      const mobile = document.getElementById("mobileNumber").value.trim();
 
-    function showTab(id) {
-      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
+      if (!name || !mobile) {
+        alert("Please enter both Name and Mobile.");
+        return;
+      }
+
+      localStorage.setItem("userName", name);
+      localStorage.setItem("userMobile", mobile);
+
+      showTab('avatarTab');
+    }
+    function tryShowTab(id) {
+    const name = localStorage.getItem("userName");
+    const mobile = localStorage.getItem("userMobile");
+
+    if ((id === "avatarTab" || id === "quizTab" || id === "adminTab") && (!name || !mobile)) {
+      alert("Please fill in your personal details first.");
+      return;
     }
 
-    function renderAvatarButtons() {
-      const container = document.getElementById("avatarList");
-      avatars.forEach((name, idx) => {
-        const btn = document.createElement("div");
-        btn.innerText = name;
-        btn.className = "avatar-button";
-        btn.onclick = () => {
-          selectedAvatarIndex = idx + 1;
-          document.getElementById("selectedAvatarDisplay").innerText = "Selected Avatar: " + name;
-          showTab("quizTab");
+    if (id === "adminTab") {
+      const pass = prompt("Enter Admin Password:");
+      if (pass !== ADMIN_PASSWORD) {
+        alert("Incorrect password.");
+        return;
+      }
+    }
+
+    showTab(id); // ✅ move this back here
+  }
+  
+  function showTab(id) {
+    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    if (id === "adminTab") showResultsTable();
+  }
+  function renderAvatarButtons() {
+    const container = document.getElementById("avatarList");
+    avatars.forEach((name, idx) => {
+      const btn = document.createElement("div");
+      btn.innerText = name;
+      btn.className = "avatar-button";
+      btn.onclick = () => {
+        selectedAvatarIndex = idx + 1;
+        document.getElementById("selectedAvatarDisplay").innerText = "Selected Avatar: " + name;
+        showTab("quizTab");
         };
         container.appendChild(btn);
       });
@@ -213,10 +248,56 @@
         correct: isCorrect,
         time: new Date().toLocaleString()
       });
-      if (isCorrect) showTab('avatarTab');
+      showTab('userTab'); // always go back to user info tab
     }
+    function downloadResults() {
+      if (resultDatabase.length === 0) {
+        alert("No results to download yet!");
+        return;
+      }
 
-    window.onload = renderAvatarButtons;
+      const headers = ["Name", "Mobile", "Avatar", "Question ID", "Selected Answer", "Correct", "Time"];
+      const rows = resultDatabase.map(r => [
+        r.name, r.mobile, r.avatar, r.questionId, r.selectedAnswer, r.correct ? "Yes" : "No", r.time
+      ]);
+
+      const csvContent = [headers, ...rows]
+        .map(e => e.map(v => `"${v}"`).join(","))
+        .join("\n");
+
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "quiz_results.csv";
+      link.click();
+    }
+    function showResultsTable() {
+      const container = document.getElementById("resultTableContainer");
+      if (resultDatabase.length === 0) {
+        container.innerHTML = "<p>No results yet.</p>";
+        return;
+      }
+
+      let html = "<table border='1'><tr><th>Name</th><th>Mobile</th><th>Avatar</th><th>QID</th><th>Answer</th><th>Correct</th><th>Time</th></tr>";
+      resultDatabase.forEach(r => {
+        html += `<tr>
+          <td>${r.name}</td>
+          <td>${r.mobile}</td>
+          <td>${r.avatar}</td>
+          <td>${r.questionId}</td>
+          <td>${r.selectedAnswer}</td>
+          <td>${r.correct ? "Yes" : "No"}</td>
+          <td>${r.time}</td>
+        </tr>`;
+      });
+      html += "</table>";
+      container.innerHTML = html;
+    }
+    window.onload = function () {
+      renderAvatarButtons();
+      document.getElementById("fullName").value = localStorage.getItem("userName") || "";
+      document.getElementById("mobileNumber").value = localStorage.getItem("userMobile") || "";
+    };
   </script>
 </body>
 </html>

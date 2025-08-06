@@ -148,7 +148,14 @@
       <button onclick="showQuestion()">Get Question</button>
       <div id="questionArea"></div>
     </div>
+    
+    <div id="adminTab" class="tab">
+    <h2>📋 Quiz Results</h2>
+    <button onclick="downloadResults()">⬇️ Download Results CSV</button>
+    <div id="resultTableContainer"></div>
   </div>
+  </div>
+  
   <script>
     const ADMIN_PASSWORD = "gopinath123"
     const avatars = ["Matsya", "Kurma", "Varaha", "Narasimha", "Vamana", "Parashurama", "Rama", "Krishna", "Buddha", "Kalki"];

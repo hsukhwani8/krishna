@@ -163,10 +163,106 @@
     let resultDatabase = [];
 
     const questions = {
+      11: { question: "What is the primary purpose of Lord Vishnu’s Matsya (fish) incarnation?", options: ["To kill demons on land", "To save the Vedas and protect the righteous", "To create new worlds", "To teach humans how to fish"], answer: "B" },
+      12: { question: "Who was the great king that received protection from the Matsya incarnation?", options: ["King Harishchandra", "King Satyavrata (Śrāddhadeva)", "King Janamejaya", "King Dhruva"], answer: "B" },
+      13: { question: "How did the fish appear to King Satyavrata?", options: ["As a small, humble fish requesting protection", "As a large, horned, eight million miles long fish", "As a divine bird", "As a lion"], answer: "B" },
+      14: { question: "Why did Lord Vishnu first assume the Matsya form during the end of Brahma’s day?", options: ["To create the universe anew", "To save the Vedic scriptures from the demon Hayagrīva", "To teach humans to fish", "To establish the monarchy"], answer: "B" },
+      15: { question: "What instructions did Lord Vishnu give to King Satyavrata regarding the boat?", options: ["To build a boat on land and wait for the flood to end", "To load herbs and seeds on the boat and sail with the ṛṣis during the flood", "To fight the water with weapons kept in the boat", "To stay on land and observe the flood from afar"], answer: "B" },
+      16: { question: "What item was used to attach the boat to the fish’s horn?", options: ["A chain of gold", "A serpent named Vāsuki", "A rope of flowers", "A piece of wood"], answer: "B" },
+      17: { question: "According to the story, what did the fish tell King Satyavrata about the waters?", options: ["That the waters would never recede", "That the waters would trap the boat forever", "That the waters would eventually inundate all worlds and then subside", "That the waters would turn into fire"], answer: "C" },
+      18: { question: "In the Matsya avatar story, who was the demon that stole the Vedic knowledge?", options: ["Rāhu", "Hayagrīva", "Kansa", "Hiranyakashipu"], answer: "B" },
+      19: { question: "What did Lord Vishnu reveal to King Satyavrata during his journey in the boat?", options: ["The secret of immortality", "The Absolute Truth and spiritual science including Vedic knowledge", "The art of war", "The location of hidden treasure"], answer: "B" },
+      110: { question: "What is the significance of hearing the story of Matsya avatar according to the text?", options: ["It guarantees material wealth", "It delivers one from the reactions of sinful life and helps attain liberation", "It provides a way to become a king", "It explains how to fish effectively"], answer: "B" },
       21: { question: "What animal form did Lord Vishnu take in the Kurma avatar?", options: ["Fish", "Boar", "Turtle", "Lion"], answer: "C" },
-      22: { question: "What was the main event during which Lord Vishnu took the Kurma avatar?", options: ["Battle of Kurukshetra", "Samudra Manthan", "Rama’s exile", "Bridge to Lanka"], answer: "B" },
-      27: { question: "What were the Devas and Asuras trying to get from the ocean?", options: ["Gold", "Lakshmi", "Amrita", "A divine weapon"], answer: "C" },
-      61: { question: "Who was the sage father of Parashurama?", options: ["Jamadagni", "Atri", "Kashyapa", "Vasishtha"], answer: "A" }
+      22: { question: "What was the main event during which Lord Vishnu took the Kurma avatar?", options: ["Battle of Kurukshetra", "Samudra Manthan (Churning of the ocean)", "Rama’s exile", "Building of the bridge to Lanka"], answer: "B" },
+      23: { question: "What mountain was used as the churning rod?", options: ["Mount Meru", "Mount Kailash", "Mount Mandara", "Mount Gandhamadana"], answer: "C" },
+      24: { question: "Which snake was used as the rope to churn the ocean?", options: ["Shesha", "Kaliya", "Vasuki", "Ananta"], answer: "C" },
+      25: { question: "Why did Lord Vishnu take the form of a turtle?", options: ["To defeat the demons", "To carry the Earth", "To support the mountain during the churning", "To save Lakshmi"], answer: "C" },
+      26: { question: "Who were the two groups involved in the churning of the ocean?", options: ["Gandharvas and Rakshasas", "Devas and Asuras", "Humans and Demons", "Saints and Kings"], answer: "B" },
+      27: { question: "What were the Devas and Asuras trying to get from the ocean?", options: ["Gold", "Lakshmi", "Amrita (nectar of immortality)", "A divine weapon"], answer: "C" },
+      28: { question: "In which Purana is the Kurma avatar story described in detail?", options: ["Shiva Purana", "Bhagavata Purana", "Agni Purana", "Linga Purana"], answer: "B" },
+      29: { question: "What was the result of the churning of the ocean besides amrita?", options: ["Only gold appeared", "Many divine beings and items appeared", "Lord Shiva appeared", "The ocean dried up"], answer: "B" },
+      210: { question: "What does the Kurma avatar teach us spiritually?", options: ["To seek wealth and power", "To meditate alone in the forest", "To stay steady and support others in tough times", "To destroy enemies by any means"], answer: "C" },
+      31: { question: "Who does Lord Varaha rescue from the primordial waters?", options: ["Goddess Lakshmi", "Goddess Sarasvati", "Goddess Bhumi (Earth)", "Goddess Ganga"], answer: "C" },
+      32: { question: "Which demon is slain by Lord Varaha during this mission?", options: ["Ravana", "Hiranyaksha", "Kamsa", "Vritra"], answer: "B" },
+      33: { question: "From where is the first small boar incarnation of Varaha said to have emerged?", options: ["Brahma’s friend's mouth", "Shiva's third eye", "Brahma’s nostril", "Vishnu’s heart"], answer: "C" },
+      34: { question: "During which Puranic devastation did the “white boar” incarnation appear?", options: ["Pralayic", "Svayambhuva", "Chakshusha", "Maha Pralaya"], answer: "B" },
+      35: { question: "What is Varaha’s form described as in anthropomorphic iconography?", options: ["Fully human", "Boar body, human head", "Boar head, human body", "Human head, deer body"], answer: "C" },
+      36: { question: "What festival commemorates Lord Varaha’s appearance?", options: ["Holi", "Varaha Dvadasi", "Diwali", "Janmashtami"], answer: "B" },
+      37: { question: "In Vedic cosmology, what ocean did Earth sink into before being rescued?", options: ["Yamuna Ocean", "Garbhodaka Ocean", "Manasa Ocean", "Mandara Ocean"], answer: "B" },
+      38: { question: "Who prayed to Lord Shiva for mercy after conceiving the demons Hiranyaksha and Hiranyakashipu?", options: ["Aditi", "Diti", "Sarasvati", "Bhumi"], answer: "B" },
+      39: { question: "Which avatar number is Varaha in the Dashavatara list?", options: ["First", "Second", "Third", "Fourth"], answer: "C" },
+      310: { question: "What does Lord Varaha symbolically represent?", options: ["Creation", "Destruction", "Preservation", "Sacrifice and restoration of cosmic order"], answer: "D" },
+      41: { question: "In which Purana is Lord Narasimha’s avatar prominently described?", options: ["Garuda Purana", "Skanda Purana", "Vishnu Purana", "Agni Purana"], answer: "C" },
+      42: { question: "What form did Lord Narasimha take?", options: ["Half-man, half-elephant", "Half-lion, half-man", "Full human form", "Half-boar, half-man"], answer: "B" },
+      43: { question: "Who was the demon king killed by Narasimha?", options: ["Ravana", "Kamsa", "Hiranyakashipu", "Duryodhana"], answer: "C" },
+      44: { question: "Who was the devotee son of Hiranyakashipu?", options: ["Vibhishana", "Arjuna", "Prahlāda", "Bharata"], answer: "C" },
+      45: { question: "From where did Lord Narasimha appear?", options: ["From the sky", "From the ocean", "From a pillar", "From a temple"], answer: "C" },
+      46: { question: "Why did Lord Vishnu take the Narasimha form?", options: ["To stop a war", "To fulfill Brahma’s boon conditions", "To protect the devas from Ravana", "To teach meditation"], answer: "B" },
+      47: { question: "At what time did Narasimha kill Hiranyakashipu?", options: ["Morning", "Night", "Dusk (twilight)", "Noon"], answer: "C" },
+      48: { question: "On what was Hiranyakashipu placed when he was killed?", options: ["In the sky", "On the ground", "On Narasimha’s lap", "On a throne"], answer: "C" },
+      49: { question: "What did Narasimha use to kill Hiranyakashipu?", options: ["Chakra", "Sword", "Nails", "Mace"], answer: "C" },
+      410: { question: "What does the form of Narasimha symbolize?", options: ["The strength of humans", "The victory of fear", "Protection of devotees and destruction of evil", "The end of all avatars"], answer: "C" },
+      51: { question: "Vamana incarnation is also called as", options: ["Trivikrama / Upendra", "Chathurbahu", "Dwimukha", "Heramba"], answer: "A" },
+      52: { question: "Vamana was born to these following people", options: ["Anasuya & Atri Rishi", "Aditi & Kashyapa", "Satyavati & Vyasa", "Tara & Brihaspati"], answer: "B" },
+      53: { question: "Who is the grandfather of Bali Maharaj?", options: ["Prahalada", "Kapila", "Svayambhuvu Manu", "Suka Maharaj"], answer: "A" },
+      54: { question: "In his fifth Incarnation, Lord Vishnu came to earth as a?", options: ["Giant Brahmin", "Vaishya form", "Kshatriya form", "Dwarf Brahmin form"], answer: "D" },
+      55: { question: "What is the meaning of Daityas?", options: ["Demons", "Asuras", "Vasuki", "Gandharvas"], answer: "A" }, 
+      56: { question: "Bali performed which yaga and conquered the world?", options: ["Rajasuya yaga", "Ashwamedha yaga", "Vajapeya yaga", "Viswajith yaga"], answer: "D" },
+      57: { question: "Who is the father of Bali Maharaj?", options: ["Hiranyakasipu", "Angadha", "Virochana", "Tarakasura"], answer: "C" },
+      58: { question: "What are the 3 steps Vamana asked Bali?", options: ["Earth, ocean, forest", "Earth, sky, ocean", "Sky, earth and one on his head", "Sky, heaven, earth"], answer: "C" },
+      59: { question: "What is Bali Chakravarthy’s wife name?", options: ["Anuhrada", "Vindhyavali", "Simhika", "Samhrada"], answer: "B" },
+      510: { question: "After Vamana revealed his true identity as Lord Vishnu, He blessed Bali with which Loka?", options: ["Jana Loka", "Tapo Loka", "Pathala Loka", "Mahar Loka"], answer: "C" },
+      61: { question: "Who was the sage father of Parashurama, known for his strict discipline and tapasya?", options: ["Jamadagni", "Atri", "Kashyapa", "Vasishtha"], answer: "A" },
+      62: { question: "What weapon did Lord Shiva gift to Parashurama after testing his devotion?", options: ["Trishula", "Parashu (Battle Axe)", "Vajra", "Sudarshan Chakra"], answer: "B" },
+      63: { question: "Which powerful king with a thousand arms was slain by Parashurama?", options: ["Duryodhana", "Bali", "Kartavirya Arjuna", "Ravana"], answer: "C" },
+      64: { question: "Which river did Parashurama invite to flow through the land he reclaimed from the sea?", options: ["Saraswati", "Yamuna", "Narmada", "Ganga"], answer: "D" },
+      65: { question: "After being humbled by Lord Rama, what did Parashurama give up?", options: ["His bow", "His renunciation", "His Kshatriya pride", "His meditative powers"], answer: "C" },
+      66: { question: "Which present-day Indian state is said to have been created by Parashurama?", options: ["Gujarat", "Kerala", "Odisha", "Maharashtra"], answer: "B" },
+      67: { question: "Which avatar of Vishnu broke Shiva’s bow and humbled Parashurama?", options: ["Rama", "Krishna", "Vamana", "Narasimha"], answer: "A" },
+      68: { question: "What was the name of the divine cow that Jamadagni possessed?", options: ["Kamadhenu", "Surabhi", "Nandini", "Shabala"], answer: "A" },
+      69: { question: "Where is Parashurama believed to be meditating, waiting for Kalki?", options: ["Gandhamadana", "Mahendragiri", "Kailash", "Vindhyas"], answer: "B" },
+      610: { question: "Whom did Parashurama train in the use of divine weapons?", options: ["Arjuna", "Karna", "Bhishma", "Both B and C"], answer: "D" },
+      71: { question: "Lakshmana is considered to be the incarnation of whom?", options: ["Lord Vishnu", "Lord Shiva", "Lord Brahma", "Sheshnag"], answer: "D" },
+      72: { question: "What was the name of the forest where Lord Rama, Lakshmana and Goddess Sita stayed during exile?", options: ["Aranya", "Aranyak", "Dandakaranya", "Karanya"], answer: "C" },
+      73: { question: "Ravana was a devotee of who among the following God?", options: ["Vishnu", "Brahma", "Shiva", "None of the above"], answer: "C" },
+      74: { question: "What was the name of a bow that was used by Lord Rama in Goddess Sita swayamvar to marry her?", options: ["Pinaka", "Pindaka", "Anandaka", "Rulapand"], answer: "A" },
+      75: { question: "Who is the main antagonist in the Ramayana?", options: ["Ravana", "Kumbhakarna", "Indrajit", "Maricha"], answer: "A" },
+      76: { question: "What is the name of Sita’s sister?", options: ["Nikasha", "Mandavi", "Surpanakha", "Urmila"], answer: "D" },
+      77: { question: "What is the name of Ravan’s Mother?", options: ["Nikasha", "Kaikesi", "Kausalya", "Surpanakha"], answer: "B" },
+      78: { question: "Which bird helps Rama in finding Sita?", options: ["Jatayu", "Garuda", "Suparna", "All of the above"], answer: "A" },
+      79: { question: "Who is Rama’s faithful devotee who builds a bridge to Lanka?", options: ["Nala", "Vali", "Sugriva", "None of the above"], answer: "A" },
+      710: { question: "Who is the son of Ravana?", options: ["Kumbhakarna", "Indrajit", "Vibhishana", "None of the above"], answer: "B" },
+      81: { question: "Where was Lord Kṛṣṇa born?", options: ["Gokula", "Ayodhyā", "Mathurā", "Dvārakā"], answer: "C" },
+      82: { question: "Who carried baby Kṛṣṇa across the Yamunā River to Gokula?", options: ["Kaṁsa", "Mother Devakī", "Vasudeva", "Nanda Mahārāja"], answer: "C" },
+      83: { question: "Who were the arjuna trees that Kṛṣṇa liberated?", options: ["Nalakūvara and Maṇigrīva", "Jaya and Vijaya", "Śukadeva and Vyāsa", "Śiva and Pārvatī"], answer: "A" },
+      84: { question: "Why were the sons of Kuvera cursed to become trees?", options: ["They stole Kṛṣṇa’s flute", "They were intoxicated and disrespected Nārada Muni", "They refused to worship Brahmā", "They hurt a cow"], answer: "B" },
+      85: { question: "What happened when Mother Yaśodā tied Kṛṣṇa to a mortar?", options: ["He cried all day", "He pulled it and broke the twin arjuna trees", "He ran away to the forest", "He chanted mantras"], answer: "B" },
+      86: { question: "What lesson does Pūtanā’s liberation teach us?", options: ["Demons go to hell", "Only saints can approach God", "Even false service to Kṛṣṇa, if done in contact with Him, gives liberation", "Poison cannot harm God"], answer: "C" },
+      87: { question: "What is the main purpose of reading the Kṛṣṇa Book?", options: ["To improve memory", "To develop love and devotion for Kṛṣṇa", "To learn Sanskrit", "To memorize stories"], answer: "B" },
+      88: { question: "Which demon came as a whirlwind to kidnap Kṛṣṇa?", options: ["Aghāsura", "Tṛṇāvarta", "Keśī", "Dhenukāsura"], answer: "B" },
+      89: { question: "How did Aghāsura try to kill Kṛṣṇa and His friends?", options: ["By swallowing them like a giant snake", "By drowning them in the Yamunā", "By setting fire", "By flying them away"], answer: "A" },
+      810: { question: "Who kidnapped the cowherd boys and calves to test Kṛṣṇa?", options: ["Śiva", "Brahmā", "Indra", "Śukadeva"], answer: "B" },
+      91: { question: "In which Purana is Buddha’s avatar mentioned?", options: ["Shiva Purana", "Vishnu Purana", "Bhāgavatam", "Garuda Purana"], answer: "C" },
+      92: { question: "In which Canto is Buddha Avatar described?", options: ["Ten", "Five", "One", "Three"], answer: "C" },
+      93: { question: "What form did Lord Buddha take to appear in this world?", options: ["Boar", "Human", "Fish", "Lion"], answer: "B" },
+      94: { question: "Which Yuga did Buddha appear in?", options: ["Satya", "Tretā", "Kali", "Dvāpara"], answer: "C" },
+      95: { question: "Where did Buddha appear?", options: ["Magadha", "Ayodhya", "Kikata", "Mathura"], answer: "C" },
+      96: { question: "Who was Buddha’s mother?", options: ["Yashodhara", "Anjanā", "Devaki", "Sita"], answer: "B" },
+      97: { question: "What major value did Buddha teach?", options: ["Devotion", "Truthfulness", "Ahimsa", "Meditation"], answer: "C" },
+      98: { question: "Which type of sacrifices did Buddha oppose?", options: ["Water", "Fire", "Animal", "Grain"], answer: "C" },
+      99: { question: "Which animal did Buddha try to save by stopping animal sacrifices?", options: ["Horse", "Cow", "Goat", "Elephant"], answer: "B" },
+      910: { question: "In which country is Buddha's birthplace traditionally located?", options: ["Sri Lanka", "Tibet", "Lumbini, India", "China"], answer: "C" },
+      101: { question: "In which Yuga will Kalki appear according to the Puranas?", options: ["Dvapara Yuga", "Treta Yuga", "Satya Yuga", "Kali Yuga"], answer: "D" },
+      102: { question: "Which Purana gives details about the Kalki avatar?", options: ["Agni Purana", "Vishnu Purana", "Skanda Purana", "Garuda Purana"], answer: "B" },
+      103: { question: "What is the name of the horse Kalki will ride?", options: ["Uchchaihshravas", "Devadatta", "Ashvamedha", "Vajra"], answer: "B" },
+      104: { question: "What weapon will Kalki use to destroy evil?", options: ["Trident", "Mace", "Shining sword", "Chakra"], answer: "C" },
+      105: { question: "What is the main purpose of Kalki’s appearance?", options: ["To teach Vedas", "To perform penance", "To destroy evil and restore Dharma", "To build temples"], answer: "C" },
+      106: { question: "Where is Kalki said to be born, as per the scriptures?", options: ["Mathura", "Shambhala", "Ayodhya", "Indraprastha"], answer: "B" },
+      107: { question: "Who will be Kalki’s parents according to Shastra?", options: ["Dasharatha and Kaushalya", "Manu and Shatarupa", "Vishnu Yasha and Sumati", "Vasudeva and Devaki"], answer: "C" },
+      108: { question: "What qualities will Kalki possess according to the Bhagavata Purana?", options: ["Riches and fame", "Divine strength, knowledge, bravery, and righteousness", "Magical powers", "Healing abilities"], answer: "B" },
+      109: { question: "What will happen after Kalki ends Kali Yuga?", options: ["Kali Yuga will restart", "Earth will be destroyed", "Satya Yuga will begin", "Kalki will rule forever"], answer: "C" },
+      1010: { question: "Who is Kalki?", options: ["A powerful king", "A prophet", "The final avatar of Vishnu", "A sage"], answer: "C" }
     };
     function saveUserInfo() {
       const name = document.getElementById("fullName").value.trim();
@@ -207,6 +303,7 @@
     document.getElementById(id).classList.add('active');
     if (id === "adminTab") showResultsTable();
   }
+    
   function renderAvatarButtons() {
     const container = document.getElementById("avatarList");
     avatars.forEach((name, idx) => {
@@ -246,7 +343,7 @@
     function checkAnswer(userAns, correctAns, qid) {
       const isCorrect = userAns === correctAns;
       alert(isCorrect ? "✅ Correct! Spin the wheel again." : "❌ Hare Krishna! Go to book table and study.");
-      resultDatabase.push({
+      const result = {
         name: document.getElementById("fullName").value,
         mobile: document.getElementById("mobileNumber").value,
         avatar: avatars[selectedAvatarIndex - 1],
@@ -254,9 +351,15 @@
         selectedAnswer: userAns,
         correct: isCorrect,
         time: new Date().toLocaleString()
-      });
+      };
+      resultDatabase.push(result);
+      const stored = JSON.parse(localStorage.getItem("quizResults") || "[]");
+      stored.push(result);
+      localStorage.setItem("quizResults", JSON.stringify(stored));
+      
       showTab('userTab'); // always go back to user info tab
     }
+    
     function downloadResults() {
       if (resultDatabase.length === 0) {
         alert("No results to download yet!");
@@ -278,6 +381,7 @@
       link.download = "quiz_results.csv";
       link.click();
     }
+    
     function showResultsTable() {
       const container = document.getElementById("resultTableContainer");
       if (resultDatabase.length === 0) {
@@ -304,6 +408,7 @@
       renderAvatarButtons();
       document.getElementById("fullName").value = localStorage.getItem("userName") || "";
       document.getElementById("mobileNumber").value = localStorage.getItem("userMobile") || "";
+      resultDatabase = JSON.parse(localStorage.getItem("quizResults") || "[]");
     };
   </script>
 </body>

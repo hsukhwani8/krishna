@@ -95,6 +95,18 @@
       color: #7a4b13;
       margin-bottom: 10px;
     }
+    @keyframes fireworks {
+      0% { transform: scale(0); opacity: 1; }
+      100% { transform: scale(3); opacity: 0; }
+    }
+    .firework {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      background: gold;
+      border-radius: 50%;
+      animation: fireworks 1s ease-out forwards;
+    }
     @media screen and (max-width: 600px) {
       body {
         display: flex;
@@ -157,7 +169,6 @@
   </div>
   
   <script>
-    let correctStreak = 0;
     const ADMIN_PASSWORD = "gopinath123"
     const avatars = ["Matsya", "Kurma", "Varaha", "Narasimha", "Vamana", "Parashurama", "Rama", "Krishna", "Buddha", "Kalki"];
     let selectedAvatarIndex = null;
@@ -267,6 +278,17 @@
       109: { question: "What will happen after Kalki ends Kali Yuga?", options: ["Kali Yuga will restart", "Earth will be destroyed", "Satya Yuga will begin", "Kalki will rule forever"], answer: "C" },
       1010: { question: "Who is Kalki?", options: ["A powerful king", "A prophet", "The final avatar of Vishnu", "A sage"], answer: "C" }
     };
+    function launchFireworks() {
+      for (let i = 0; i < 30; i++) {
+        const fw = document.createElement('div');
+        fw.className = 'firework';
+        fw.style.top = `${Math.random() * window.innerHeight}px`;
+        fw.style.left = `${Math.random() * window.innerWidth}px`;
+        fw.style.background = `hsl(${Math.random() * 360}, 100%, 60%)`;
+        document.body.appendChild(fw);
+        setTimeout(() => fw.remove(), 1000);
+      }
+    }
     function saveUserInfo() {
       const name = document.getElementById("fullName").value.trim();
       const mobile = document.getElementById("mobileNumber").value.trim();
@@ -372,18 +394,18 @@
           winnersList.push(winner);
           localStorage.setItem("quizWinners", JSON.stringify(winnersList));
           lockInterface("🪷 Hare Krishna! We won the game. Meet our youth member for your gift.");
+          launchFireworks();
+          setTimeout (() => {
+            alert("🔁 The quiz will now restart.");
+            correctStreak = 0;
+            restartGame();
+            }, 3000);
         }
-        setTimeout (() => {
-          alert("🔁 The quiz will now restart.");
-          correctStreak = 0;
-          restartGame();
-        }, 3000);
       } else {
         correctStreak = 0;
         alert("❌ Hare Krishna! Good Try! But not correct! Get a book to read.");
         lockInterface();
       }
-    
     }
 
     function lockInterface(message = "❌ You answered incorrectly. Please go to the book table and study the Vedic texts.") {

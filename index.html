@@ -372,6 +372,10 @@
           localStorage.setItem("quizWinners", JSON.stringify(winnersList));
           lockInterface("🪷 Hare Krishna! We won the game. Meet our youth member for your gift.");
         }
+        setTimeout (() => {
+          alert("🔁 The quiz will now restart.");
+          restartGame();
+        }, 3000);
       } else {
         correctStreak = 0;
         alert("❌ Hare Krishna! Good Try! But not correct! Get a book to read.");

@@ -424,8 +424,10 @@
     function restartGame() {
       correctStreak = 0;
       resultDatabase = [];
-      localStorage.clear();
-      location.reload();
+      selectedAvatarIndex = 0;
+      document.getElementById("questionArea").innerHTML = "";
+      document.getElementById("questionNumberInput").value = "";
+      showTab("userTab");
     }
     
     function downloadResults() {

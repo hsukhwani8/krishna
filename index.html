@@ -175,7 +175,8 @@
     let resultDatabase = [];
     let winnerList = [];
     let correctStreak = 0;
-
+    const winSound = new Audio("https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3");
+    
     const questions = {
       11: { question: "What is the primary purpose of Lord Vishnu’s Matsya (fish) incarnation?", options: ["To kill demons on land", "To save the Vedas and protect the righteous", "To create new worlds", "To teach humans how to fish"], answer: "B" },
       12: { question: "Who was the great king that received protection from the Matsya incarnation?", options: ["King Harishchandra", "King Satyavrata (Śrāddhadeva)", "King Janamejaya", "King Dhruva"], answer: "B" },
@@ -288,6 +289,7 @@
         document.body.appendChild(fw);
         setTimeout(() => fw.remove(), 1000);
       }
+      winSound.play();
     }
     function saveUserInfo() {
       const name = document.getElementById("fullName").value.trim();
@@ -390,6 +392,7 @@
         showTab("avatarTab");
         if (correctStreak >= 3) {
            alert("🪷 Hare Krishna! We won the game. Meet our youth member for your gift.");
+          launchFireworks();
           const winner = { name, mobile, time: new Date().toLocaleString() };
           winnersList.push(winner);
           localStorage.setItem("quizWinners", JSON.stringify(winnersList));

@@ -161,6 +161,8 @@
     const avatars = ["Matsya", "Kurma", "Varaha", "Narasimha", "Vamana", "Parashurama", "Rama", "Krishna", "Buddha", "Kalki"];
     let selectedAvatarIndex = null;
     let resultDatabase = [];
+    let winnerList = [];
+    let correctStreak = 0;
 
     const questions = {
       11: { question: "What is the primary purpose of Lord Vishnu’s Matsya (fish) incarnation?", options: ["To kill demons on land", "To save the Vedas and protect the righteous", "To create new worlds", "To teach humans how to fish"], answer: "B" },
@@ -300,7 +302,8 @@
   
   function showTab(id) {
     document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
+    const el = document.getElementById(id);
+    if (el) el.classList.add('active');
     if (id === "adminTab") showResultsTable();
   }
     
@@ -357,28 +360,44 @@
       localStorage.setItem("quizResults", JSON.stringify(stored));
 
       if(isCorrect) {
+        correctStreak++;
         alert("✅ Good Answer! Spin the wheel for next question.");
         document.getElementById("questionArea").innerHTML = "";
         document.getElementById("questionNumberInput").value = "";
         showTab("avatarTab");
+        if (correctStreak >= 3) {
+           alert("🪷 Hare Krishna! We won the game. Meet our youth member for your gift.");
+          const winner = { name, mobile, time: new Date().toLocaleString() };
+          winnersList.push(winner);
+          localStorage.setItem("quizWinners", JSON.stringify(winnersList));
+          lockInterface("🪷 Hare Krishna! We won the game. Meet our youth member for your gift.");
+        }
       } else {
+        correctStreak = 0;
         alert("❌ Hare Krishna! Good Try! But not correct! Get a book to read.");
         lockInterface();
       }
     
     }
 
-    function lockInterface() {
+    function lockInterface(message = "❌ You answered incorrectly. Please go to the book table and study the Vedic texts.") {
       document.body.innerHTML = `
         <div class="main-container">
-          <h2 style="color:red; text-align:center;">🚫 You are locked out!</h2>
-          <p style="text-align:center;">You answered incorrectly. Please go to the book table and study the Vedic texts.</p>
-          <button onclick="location.reload()" style="display:block; margin:20px auto;">🔁 Restart Quiz</button>
+          <h2 style="color:red; text-align:center;">🚫 Quiz Locked!</h2>
+          <p style="text-align:center;">${message}</p>
+          <button onclick="restartGame()" style="display:block; margin:20px auto;">🔁 Restart Quiz</button>
         </div>
       `;
       localStorage.removeItem("userName");
       localStorage.removeItem("userMobile");
       localStorage.removeItem("quizResults");
+    }
+
+    function restartGame() {
+      correctStreak = 0;
+      resultDatabase = [];
+      localStorage.clear();
+      location.reload();
     }
     
     function downloadResults() {
@@ -423,6 +442,15 @@
         </tr>`;
       });
       html += "</table>";
+      const winners = JSON.parse(localStorage.getItem("quizWinners") || "[]");
+      if (winners.length > 0) {
+        html += "<h3 style='margin-top: 20px;'>🎉 Winners List</h3>";
+        html += "<table border='1'><tr><th>Name</th><th>Mobile</th><th>Time</th></tr>";
+        winners.forEach(w => {
+          html += `<tr><td>${w.name}</td><td>${w.mobile}</td><td>${w.time}</td></tr>`;
+        });
+        html += "</table>";
+      }
       container.innerHTML = html;
     }
     window.onload = function () {
@@ -430,6 +458,7 @@
       document.getElementById("fullName").value = localStorage.getItem("userName") || "";
       document.getElementById("mobileNumber").value = localStorage.getItem("userMobile") || "";
       resultDatabase = JSON.parse(localStorage.getItem("quizResults") || "[]");
+      winnersList = JSON.parse(localStorage.getItem("quizWinners") || "[]");
     };
   </script>
 </body>

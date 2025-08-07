@@ -342,7 +342,6 @@
 
     function checkAnswer(userAns, correctAns, qid) {
       const isCorrect = userAns === correctAns;
-      alert(isCorrect ? "✅ Good Answer! Spin the wheel for next question." : "❌ Hare Krishna! Good Try! But not correct! Get a book to read.");
       const result = {
         name: document.getElementById("fullName").value,
         mobile: document.getElementById("mobileNumber").value,
@@ -356,8 +355,30 @@
       const stored = JSON.parse(localStorage.getItem("quizResults") || "[]");
       stored.push(result);
       localStorage.setItem("quizResults", JSON.stringify(stored));
-      
-      showTab('userTab'); // always go back to user info tab
+
+      if(isCorrect) {
+        alert("✅ Good Answer! Spin the wheel for next question.");
+        document.getElementById("questionArea").innerHTML = "";
+        document.getElementById("questionNumberInput").value = "";
+        showTab("avatarTab");
+      } else {
+        alert("❌ Hare Krishna! Good Try! But not correct! Get a book to read.");
+        lockInterface();
+      }
+    
+    }
+
+    function lockInterface() {
+      document.body.innerHTML = `
+        <div class="main-container">
+          <h2 style="color:red; text-align:center;">🚫 You are locked out!</h2>
+          <p style="text-align:center;">You answered incorrectly. Please go to the book table and study the Vedic texts.</p>
+          <button onclick="location.reload()" style="display:block; margin:20px auto;">🔁 Restart Quiz</button>
+        </div>
+      `;
+      localStorage.removeItem("userName");
+      localStorage.removeItem("userMobile");
+      localStorage.removeItem("quizResults");
     }
     
     function downloadResults() {

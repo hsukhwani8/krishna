@@ -40,7 +40,7 @@
     </div>
 
     <main class="p-6">
-      <!-- User -->
+      <!-- Contact details -->
       <div id="userSection" class="section active">
         <h2 class="text-3xl font-semibold text-center text-gray-800 mb-4">Welcome!</h2>
         <p class="text-center text-gray-600 mb-6">Enter your details to begin.</p>
@@ -52,7 +52,7 @@
         <button onclick="showAdminLogin()" class="mt-4 w-full text-xs text-gray-400 hover:text-orange-500">Admin Login</button>
       </div>
 
-      <!-- Avatar -->
+      <!-- Avatar select page -->
       <div id="avatarSection" class="section">
         <h2 class="text-3xl font-semibold text-center text-gray-800 mb-2">Choose your Avatar</h2>
         <p class="text-center text-gray-600 mb-4">Select one of the Dashavatara to answer from.</p>
@@ -91,7 +91,7 @@
     </main>
   </div>
 
-  <!-- Modal -->
+  <!-- Generic modal -->
   <div id="customModal" class="modal-backdrop">
     <div class="modal-content bg-white w-full max-w-sm p-6 rounded-2xl shadow-xl text-center">
       <div id="modalIcon" class="text-5xl mb-4"></div>
@@ -104,7 +104,7 @@
     </div>
   </div>
 
-  <!-- Avatar picker after correct answers -->
+  <!-- Avatar Picker Modal (after each correct answer) -->
   <div id="avatarModal" class="modal-backdrop">
     <div class="modal-content bg-white w-full max-w-md p-6 rounded-2xl shadow-xl">
       <h3 class="text-2xl font-bold text-gray-800 mb-2 text-center">Choose your Avatar</h3>
@@ -117,10 +117,10 @@
   </div>
 
   <script>
-    /********* GOOGLE SHEET WEB APP URL *********/
-    const SHEET_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxDvx2ppKkR3791D6z-7rzO8pY54J-45YaiIE8lkZj94vFMjGSa6thGgiNIKAaYjSGeyA/exec";
-
+    /* ====== CONFIG ====== */
+    const GOOGLE_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxDvx2ppKkR3791D6z-7rzO8pY54J-45YaiIE8lkZj94vFMjGSa6thGgiNIKAaYjSGeyA/exec';
     const ADMIN_PASSWORD = "gopinath123";
+
     const AVATARS = [
       { name: "Matsya", icon: "fish" },
       { name: "Kurma", icon: "turtle" },
@@ -134,8 +134,8 @@
       { name: "Kalki", icon: "horse" }
     ];
 
-    // QUESTIONS (keys like 11..1010: first digit = avatar, rest = question #)
-    const RAW_QUESTIONS = {
+    /* ====== QUESTIONS ====== */
+    const RAW_QUESTIONS = {/* ——— your same RAW_QUESTIONS object exactly as you sent ——— */ 
       11:{question:"What is the primary purpose of Lord Vishnu’s Matsya (fish) incarnation?",options:["To kill demons on land","To save the Vedas and protect the righteous","To create new worlds","To teach humans how to fish"],answer:"B"},
       12:{question:"Who was the great king that received protection from the Matsya incarnation?",options:["King Harishchandra","King Satyavrata (Śrāddhadeva)","King Janamejaya","King Dhruva"],answer:"B"},
       13:{question:"How did the fish appear to King Satyavrata?",options:["As a small, humble fish requesting protection","As a large, horned, eight million miles long fish","As a divine bird","As a lion"],answer:"B"},
@@ -146,7 +146,6 @@
       18:{question:"In the Matsya avatar story, who was the demon that stole the Vedic knowledge?",options:["Rāhu","Hayagrīva","Kansa","Hiranyakashipu"],answer:"B"},
       19:{question:"What did Lord Vishnu reveal to King Satyavrata during his journey in the boat?",options:["The secret of immortality","The Absolute Truth and spiritual science including Vedic knowledge","The art of war","The location of hidden treasure"],answer:"B"},
       110:{question:"What is the significance of hearing the story of Matsya avatar according to the text?",options:["It guarantees material wealth","It delivers one from the reactions of sinful life and helps attain liberation","It provides a way to become a king","It explains how to fish effectively"],answer:"B"},
-
       21:{question:"What animal form did Lord Vishnu take in the Kurma avatar?",options:["Fish","Boar","Turtle","Lion"],answer:"C"},
       22:{question:"What was the main event during which Lord Vishnu took the Kurma avatar?",options:["Battle of Kurukshetra","Samudra Manthan (Churning of the ocean)","Rama’s exile","Building of the bridge to Lanka"],answer:"B"},
       23:{question:"What mountain was used as the churning rod?",options:["Mount Meru","Mount Kailash","Mount Mandara","Mount Gandhamadana"],answer:"C"},
@@ -157,7 +156,6 @@
       28:{question:"In which Purana is the Kurma avatar story described in detail?",options:["Shiva Purana","Bhagavata Purana","Agni Purana","Linga Purana"],answer:"B"},
       29:{question:"What was the result of the churning of the ocean besides amrita?",options:["Only gold appeared","Many divine beings and items appeared","Lord Shiva appeared","The ocean dried up"],answer:"B"},
       210:{question:"What does the Kurma avatar teach us spiritually?",options:["To seek wealth and power","To meditate alone in the forest","To stay steady and support others in tough times","To destroy enemies by any means"],answer:"C"},
-
       31:{question:"Who does Lord Varaha rescue from the primordial waters?",options:["Goddess Lakshmi","Goddess Sarasvati","Goddess Bhumi (Earth)","Goddess Ganga"],answer:"C"},
       32:{question:"Which demon is slain by Lord Varaha during this mission?",options:["Ravana","Hiranyaksha","Kamsa","Vritra"],answer:"B"},
       33:{question:"From where is the first small boar incarnation of Varaha said to have emerged?",options:["Brahma’s friend's mouth","Shiva's third eye","Brahma’s nostril","Vishnu’s heart"],answer:"C"},
@@ -168,7 +166,6 @@
       38:{question:"Who prayed to Lord Shiva for mercy after conceiving the demons Hiranyaksha and Hiranyakashipu?",options:["Aditi","Diti","Sarasvati","Bhumi"],answer:"B"},
       39:{question:"Which avatar number is Varaha in the Dashavatara list?",options:["First","Second","Third","Fourth"],answer:"C"},
       310:{question:"What does Lord Varaha symbolically represent?",options:["Creation","Destruction","Preservation","Sacrifice and restoration of cosmic order"],answer:"D"},
-
       41:{question:"In which Purana is Lord Narasimha’s avatar prominently described?",options:["Garuda Purana","Skanda Purana","Vishnu Purana","Agni Purana"],answer:"C"},
       42:{question:"What form did Lord Narasimha take?",options:["Half-man, half-elephant","Half-lion, half-man","Full human form","Half-boar, half-man"],answer:"B"},
       43:{question:"Who was the demon king killed by Narasimha?",options:["Ravana","Kamsa","Hiranyakashipu","Duryodhana"],answer:"C"},
@@ -179,7 +176,6 @@
       48:{question:"On what was Hiranyakashipu placed when he was killed?",options:["In the sky","On the ground","On Narasimha’s lap","On a throne"],answer:"C"},
       49:{question:"What did Narasimha use to kill Hiranyakashipu?",options:["Chakra","Sword","Nails","Mace"],answer:"C"},
       410:{question:"What does the form of Narasimha symbolize?",options:["The strength of humans","The victory of fear","Protection of devotees and destruction of evil","The end of all avatars"],answer:"C"},
-
       51:{question:"Vamana incarnation is also called as",options:["Trivikrama / Upendra","Chathurbahu","Dwimukha","Heramba"],answer:"A"},
       52:{question:"Vamana was born to these following people",options:["Anasuya & Atri Rishi","Aditi & Kashyapa","Satyavati & Vyasa","Tara & Brihaspati"],answer:"B"},
       53:{question:"Who is the grandfather of Bali Maharaj?",options:["Prahalada","Kapila","Svayambhuvu Manu","Suka Maharaj"],answer:"A"},
@@ -190,7 +186,6 @@
       58:{question:"What are the 3 steps Vamana asked Bali?",options:["Earth, ocean, forest","Earth, sky, ocean","Sky, earth and one on his head","Sky, heaven, earth"],answer:"C"},
       59:{question:"What is Bali Chakravarthy’s wife name?",options:["Anuhrada","Vindhyavali","Simhika","Samhrada"],answer:"B"},
       510:{question:"After Vamana revealed his true identity as Lord Vishnu, He blessed Bali with which Loka?",options:["Jana Loka","Tapo Loka","Pathala Loka","Mahar Loka"],answer:"C"},
-
       61:{question:"Who was the sage father of Parashurama, known for his strict discipline and tapasya?",options:["Jamadagni","Atri","Kashyapa","Vasishtha"],answer:"A"},
       62:{question:"What weapon did Lord Shiva gift to Parashurama after testing his devotion?",options:["Trishula","Parashu (Battle Axe)","Vajra","Sudarshan Chakra"],answer:"B"},
       63:{question:"Which powerful king with a thousand arms was slain by Parashurama?",options:["Duryodhana","Bali","Kartavirya Arjuna","Ravana"],answer:"C"},
@@ -201,7 +196,6 @@
       68:{question:"What was the name of the divine cow that Jamadagni possessed?",options:["Kamadhenu","Surabhi","Nandini","Shabala"],answer:"A"},
       69:{question:"Where is Parashurama believed to be meditating, waiting for Kalki?",options:["Gandhamadana","Mahendragiri","Kailash","Vindhyas"],answer:"B"},
       610:{question:"Whom did Parashurama train in the use of divine weapons?",options:["Arjuna","Karna","Bhishma","Both B and C"],answer:"D"},
-
       71:{question:"Lakshmana is considered to be the incarnation of whom?",options:["Lord Vishnu","Lord Shiva","Lord Brahma","Sheshnag"],answer:"D"},
       72:{question:"What was the name of the forest where Lord Rama, Lakshmana and Goddess Sita stayed during exile?",options:["Aranya","Aranyak","Dandakaranya","Karanya"],answer:"C"},
       73:{question:"Ravana was a devotee of who among the following God?",options:["Vishnu","Brahma","Shiva","None of the above"],answer:"C"},
@@ -212,7 +206,6 @@
       78:{question:"Which bird helps Rama in finding Sita?",options:["Jatayu","Garuda","Suparna","All of the above"],answer:"A"},
       79:{question:"Who is Rama’s faithful devotee who builds a bridge to Lanka?",options:["Nala","Vali","Sugriva","None of the above"],answer:"A"},
       710:{question:"Who is the son of Ravana?",options:["Kumbhakarna","Indrajit","Vibhishana","None of the above"],answer:"B"},
-
       81:{question:"Where was Lord Kṛṣṇa born?",options:["Gokula","Ayodhyā","Mathurā","Dvārakā"],answer:"C"},
       82:{question:"Who carried baby Kṛṣṇa across the Yamunā River to Gokula?",options:["Kaṁsa","Mother Devakī","Vasudeva","Nanda Mahārāja"],answer:"C"},
       83:{question:"Who were the arjuna trees that Kṛṣṇa liberated?",options:["Nalakūvara and Maṇigrīva","Jaya and Vijaya","Śukadeva and Vyāsa","Śiva and Pārvatī"],answer:"A"},
@@ -223,7 +216,6 @@
       88:{question:"Which demon came as a whirlwind to kidnap Kṛṣṇa?",options:["Aghāsura","Tṛṇāvarta","Keśī","Dhenukāsura"],answer:"B"},
       89:{question:"How did Aghāsura try to kill Kṛṣṇa and His friends?",options:["By swallowing them like a giant snake","By drowning them in the Yamunā","By setting fire","By flying them away"],answer:"A"},
       810:{question:"Who kidnapped the cowherd boys and calves to test Kṛṣṇa?",options:["Śiva","Brahmā","Indra","Śukadeva"],answer:"B"},
-
       91:{question:"In which Purana is Buddha’s avatar mentioned?",options:["Shiva Purana","Vishnu Purana","Bhāgavatam","Garuda Purana"],answer:"C"},
       92:{question:"In which Canto is Buddha Avatar described?",options:["Ten","Five","One","Three"],answer:"C"},
       93:{question:"What form did Lord Buddha take to appear in this world?",options:["Boar","Human","Fish","Lion"],answer:"B"},
@@ -234,7 +226,6 @@
       98:{question:"Which type of sacrifices did Buddha oppose?",options:["Water","Fire","Animal","Grain"],answer:"C"},
       99:{question:"Which animal did Buddha try to save by stopping animal sacrifices?",options:["Horse","Cow","Goat","Elephant"],answer:"B"},
       910:{question:"In which country is Buddha's birthplace traditionally located?",options:["Sri Lanka","Tibet","Lumbini, India","China"],answer:"C"},
-
       101:{question:"In which Yuga will Kalki appear according to the Puranas?",options:["Dvapara Yuga","Treta Yuga","Satya Yuga","Kali Yuga"],answer:"D"},
       102:{question:"Which Purana gives details about the Kalki avatar?",options:["Agni Purana","Vishnu Purana","Skanda Purana","Garuda Purana"],answer:"B"},
       103:{question:"What is the name of the horse Kalki will ride?",options:["Uchchaihshravas","Devadatta","Ashvamedha","Vajra"],answer:"B"},
@@ -247,29 +238,42 @@
       1010:{question:"Who is Kalki?",options:["A powerful king","A prophet","The final avatar of Vishnu","A sage"],answer:"C"}
     };
 
-    // Build QUESTION_BANK: 10 avatars × 10 questions
+    /* Build QUESTION_BANK with a robust parser (works for avatar 10 too) */
     const QUESTION_BANK = {}; for (let i=1;i<=10;i++) QUESTION_BANK[i] = new Array(10).fill(null);
     Object.keys(RAW_QUESTIONS).forEach(k=>{
-      const key = k.toString();
-      const avatarIdx = parseInt(key[0],10);
-      const qNum = parseInt(key.slice(1),10);
+      const s = String(k);
+      const qNum = s.endsWith('10') ? 10 : parseInt(s.slice(-1),10);
+      const avatarIdx = parseInt(s.slice(0, s.length - (qNum===10?2:1)), 10);
       const qObj = RAW_QUESTIONS[k];
-      if (avatarIdx>=1 && avatarIdx<=10 && qNum>=1 && qNum<=10) {
-        QUESTION_BANK[avatarIdx][qNum-1] = qObj;
-      }
+      if (avatarIdx>=1 && avatarIdx<=10 && qNum>=1 && qNum<=10) QUESTION_BANK[avatarIdx][qNum-1] = qObj;
     });
 
-    // STATE
-    let currentUserName="", currentUserMobile="", selectedAvatarIndex=null, correctStreak=0;
-    let allAttempts=[], allWinners=[]; let offlineMode=false;
+    /* ====== State ====== */
+    let selectedAvatarIndex=null, correctStreak=0;
+    let currentUserName="", currentUserMobile="";
+    let allAttempts=[], allWinners=[];
+    let offlineMode=false;
     const winSound = new Audio("https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3");
     let correctAnsweredSet = new Set();
 
-    // UI helpers
-    window.showSection = id => { document.querySelectorAll('.section').forEach(s=>s.classList.remove('active')); document.getElementById(id)?.classList.add('active'); };
-    function updateOfflineBanner(){ document.getElementById('offlineBanner').classList.toggle('active', offlineMode); }
+    /* ====== Sheets POST (form-encoded, no-cors) ====== */
+    async function postToSheet(type, payload){
+      const body = new URLSearchParams();
+      body.append('type', type);
+      Object.entries(payload).forEach(([k,v]) => body.append(k, String(v ?? '')));
+      try{
+        await fetch(GOOGLE_WEB_APP_URL, { method:'POST', mode:'no-cors', body });
+        return true;
+      }catch(err){
+        console.warn('Sheet POST failed, switching to offline mode', err);
+        offlineMode=true; document.getElementById('offlineBanner').classList.add('active');
+        return false;
+      }
+    }
 
-    // Mobile validation (AU)
+    /* ====== UI helpers ====== */
+    window.showSection = id => { document.querySelectorAll('.section').forEach(s=>s.classList.remove('active')); document.getElementById(id)?.classList.add('active'); };
+
     function normaliseAuMobile(input){
       const digits=input.replace(/[^\d+]/g,'');
       const auMobileRegex=/^(?:\+?61|0)4\d{8}$/;
@@ -279,36 +283,6 @@
       return digits;
     }
 
-    // ======= SHEET POST (FormData to avoid CORS preflight) =======
-    async function postToSheet(type, payload){
-      try{
-        const fd = new FormData();
-        fd.append('type', type);
-        Object.entries(payload).forEach(([k,v])=> fd.append(k, String(v)));
-        await fetch(SHEET_WEBAPP_URL, { method: 'POST', body: fd, mode: 'no-cors' });
-        // no-cors: we can't read the response, but Apps Script still receives it.
-        return true;
-      }catch(err){
-        console.warn('Sheet post failed:', err);
-        return false;
-      }
-    }
-    async function saveAttemptDoc(payload){
-      const ok = await postToSheet('attempt', payload);
-      if(!ok){ offlineMode=true; updateOfflineBanner();
-        allAttempts=[...allAttempts,{...payload,id:`local_${Date.now()}`}];
-        localStorage.setItem('quiz_attempts', JSON.stringify(allAttempts));
-      }
-    }
-    async function saveWinnerDoc(payload){
-      const ok = await postToSheet('winner', payload);
-      if(!ok){ offlineMode=true; updateOfflineBanner();
-        allWinners=[...allWinners,{...payload,id:`local_${Date.now()}`}];
-        localStorage.setItem('quiz_winners', JSON.stringify(allWinners));
-      }
-    }
-
-    // Handlers
     window.saveUserInfo = () => {
       const name=document.getElementById('fullName').value.trim();
       const mobileRaw=document.getElementById('mobileNumber').value.trim();
@@ -359,8 +333,7 @@
 
       const key = `${selectedAvatarIndex}-${qn}`;
       if (correctAnsweredSet.has(key)) {
-        showModal('error','Already Answered','You already answered this one correctly for this avatar. Try a different question number.',[{text:'Okay'}]);
-        return;
+        showModal('error','Already Answered','You already answered this one correctly for this avatar. Choose a different number.',[{text:'Okay'}]); return;
       }
 
       const data=getQuestion(selectedAvatarIndex, qn);
@@ -386,13 +359,18 @@
         btn.classList.add('!bg-red-500','text-white','!border-red-700','font-bold'); btn.innerHTML+=' <i class="fa-solid fa-xmark"></i>';
       }
 
-      try{
-        await saveAttemptDoc({
-          name: currentUserName, mobile: currentUserMobile,
-          avatar: AVATARS[avatarIdx-1]?.name || '', avatarIndex: avatarIdx,
-          questionNumber: qNum, selectedAnswer: userAns, correct: isCorrect
-        });
-      }catch(e){ console.error('Save error', e); }
+      // Persist to Google Sheets (and also to local storage for Admin view)
+      const attemptPayload = {
+        name: currentUserName, mobile: currentUserMobile,
+        avatar: AVATARS[avatarIdx-1]?.name || '', avatarIndex: avatarIdx,
+        questionNumber: qNum, selectedAnswer: userAns, correct: isCorrect
+      };
+      const ok = await postToSheet('attempt', attemptPayload);
+
+      // Always keep local copy for download/admin
+      allAttempts.push({ ...attemptPayload, timestamp: Date.now() });
+      localStorage.setItem('quiz_attempts_local', JSON.stringify(allAttempts));
+      if (!ok) { document.getElementById('offlineBanner').classList.add('active'); }
 
       setTimeout(()=>{
         if(isCorrect){
@@ -411,7 +389,13 @@
     function resetQuestionUI(){ document.getElementById('questionArea').innerHTML=''; document.getElementById('questionNumberInput').value=''; }
 
     async function handleWin(){
-      try{ await saveWinnerDoc({name:currentUserName,mobile:currentUserMobile}); }catch{}
+      const winnerPayload = { name: currentUserName, mobile: currentUserMobile };
+      const ok = await postToSheet('winner', winnerPayload);
+
+      allWinners.push({ ...winnerPayload, timestamp: Date.now() });
+      localStorage.setItem('quiz_winners_local', JSON.stringify(allWinners));
+      if (!ok) { document.getElementById('offlineBanner').classList.add('active'); }
+
       launchFireworks(); try{ await winSound.play(); }catch{}
       showModal('win','🪷 You Won! 🪷','Hare Krishna! Show this to a youth member for your prize.',[
         { text:'<i class="fa-brands fa-instagram"></i> Follow Us', isLink:true, href:'https://www.instagram.com/iskcon_ns_youth/', class:'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600' },
@@ -425,7 +409,7 @@
       });
     }
     function restartGame(){
-      correctStreak=0; selectedAvatarIndex=null; currentUserName=""; currentUserMobile="";
+      correctStreak=0; selectedAvatarIndex=null;
       correctAnsweredSet = new Set();
       document.getElementById('selectedAvatarDisplay').innerText='';
       document.getElementById('fullName').value=''; document.getElementById('mobileNumber').value='';
@@ -442,37 +426,40 @@
       ]);
     };
     window.downloadResults=()=>{
-      const hasData=(allAttempts?.length||0)+(allWinners?.length||0)>0;
-      if(!hasData){ showModal('error','No Data','No offline results to download yet (online results are in Google Sheets).',[{text:'Okay'}]); return; }
       const attemptHeaders=["Name","Mobile","Avatar","AvatarIdx","Q#","Correct","Time"];
       const attemptRows=(allAttempts||[]).map(r=>{
-        const time=new Date().toLocaleString();
+        const time=new Date(r.timestamp||Date.now()).toLocaleString();
         return [r.name,r.mobile,r.avatar,r.avatarIndex||'',r.questionNumber||'',r.correct?'Yes':'No',time];
       });
       const winnerHeaders=["Name","Mobile","Time"];
-      const winnerRows=(allWinners||[]).map(w=>[w.name,w.mobile,new Date().toLocaleString()]);
+      const winnerRows=(allWinners||[]).map(w=>{
+        const time=new Date(w.timestamp||Date.now()).toLocaleString();
+        return [w.name,w.mobile,time];
+      });
       const csvAttempts=[attemptHeaders,...attemptRows].map(r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(",")).join("\n");
       const csvWinners=[winnerHeaders,...winnerRows].map(r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(",")).join("\n");
       const final="Attempts\n"+csvAttempts+"\n\nWinners\n"+csvWinners;
-      const blob=new Blob([final],{type:'text/csv'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='quiz_results_offline.csv'; a.click();
+      const blob=new Blob([final],{type:'text/csv'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='quiz_results.csv'; a.click();
     };
     function showResultsTable(){
-      const c=document.getElementById('resultTableContainer'); let html="";
+      const c=document.getElementById('resultTableContainer');
+      let html="";
       if(allAttempts && allAttempts.length){
-        html+="<h3 class='text-xl font-bold mb-2 text-gray-700'>Offline Attempts</h3><table class='w-full border-collapse'><thead class='bg-gray-200'><tr><th class='p-2 border'>Name</th><th class='p-2 border'>Mobile</th><th class='p-2 border'>Avatar</th><th class='p-2 border'>AvatarIdx</th><th class='p-2 border'>Q#</th><th class='p-2 border'>Correct</th></tr></thead><tbody>";
-        [...allAttempts].forEach(r=>{
+        html+="<h3 class='text-xl font-bold mb-2 text-gray-700'>Quiz Attempts (this device)</h3><table class='w-full border-collapse'><thead class='bg-gray-200'><tr><th class='p-2 border'>Name</th><th class='p-2 border'>Mobile</th><th class='p-2 border'>Avatar</th><th class='p-2 border'>AvatarIdx</th><th class='p-2 border'>Q#</th><th class='p-2 border'>Correct</th></tr></thead><tbody>";
+        [...allAttempts].slice().reverse().forEach(r=>{
           html+=`<tr class='border-b'><td class='p-2 border'>${r.name||''}</td><td class='p-2 border'>${r.mobile||''}</td><td class='p-2 border'>${r.avatar||''}</td><td class='p-2 border'>${r.avatarIndex||''}</td><td class='p-2 border'>${r.questionNumber||''}</td><td class='p-2 border ${r.correct?'text-green-600':'text-red-600'}'>${r.correct?'Yes':'No'}</td></tr>`;
         });
         html+="</tbody></table>";
       }
       if(allWinners && allWinners.length){
-        html+="<h3 class='text-xl font-bold mt-6 mb-2 text-gray-700'>Offline Winners</h3><table class='w-full border-collapse'><thead class='bg-gray-200'><tr><th class='p-2 border'>Name</th><th class='p-2 border'>Mobile</th></tr></thead><tbody>";
-        [...allWinners].forEach(w=>{
-          html+=`<tr class='border-b'><td class='p-2 border'>${w.name||''}</td><td class='p-2 border'>${w.mobile||''}</td></tr>`;
+        html+="<h3 class='text-xl font-bold mt-6 mb-2 text-gray-700'>🎉 Winners (this device)</h3><table class='w-full border-collapse'><thead class='bg-gray-200'><tr><th class='p-2 border'>Name</th><th class='p-2 border'>Mobile</th><th class='p-2 border'>Time</th></tr></thead><tbody>";
+        [...allWinners].slice().reverse().forEach(w=>{
+          const time=new Date(w.timestamp||Date.now()).toLocaleString();
+          html+=`<tr class='border-b'><td class='p-2 border'>${w.name||''}</td><td class='p-2 border'>${w.mobile||''}</td><td class='p-2 border'>${time}</td></tr>`;
         });
         html+="</tbody></table>";
       }
-      c.innerHTML = html || "<p>No offline data stored. Online results go straight to Google Sheets.</p>";
+      c.innerHTML = html || "<p>No local results yet. Everything still goes to Google Sheets.</p>";
     }
 
     // Modal helpers
@@ -506,15 +493,12 @@
     }
 
     // Bootstrap
-    window.onload=()=>{ 
-      renderAvatarButtons(); 
-      renderAvatarModal(); 
+    window.onload=()=>{
       try{
-        // try a tiny post to check online mode (won't write anything)
-        fetch(SHEET_WEBAPP_URL, { method:'HEAD', mode:'no-cors' })
-          .then(()=>{ offlineMode=false; updateOfflineBanner(); })
-          .catch(()=>{ offlineMode=true; updateOfflineBanner(); });
-      }catch{ offlineMode=true; updateOfflineBanner(); }
+        allAttempts = JSON.parse(localStorage.getItem('quiz_attempts_local')||'[]');
+        allWinners  = JSON.parse(localStorage.getItem('quiz_winners_local')||'[]');
+      }catch{}
+      renderAvatarButtons(); renderAvatarModal();
     };
   </script>
 </body>

@@ -36,23 +36,23 @@
     </header>
 
     <div id="offlineBanner" class="px-4 py-2 text-sm bg-amber-100 text-amber-900 border-b border-amber-300">
-      You’re <strong>offline</strong> — logging locally. Data syncs when back online.
+      Running in <strong>offline mode</strong> — results are saved locally and can be exported from Admin.
     </div>
 
     <main class="p-6">
-      <!-- Contact details -->
+      <!-- User -->
       <div id="userSection" class="section active">
         <h2 class="text-3xl font-semibold text-center text-gray-800 mb-4">Welcome!</h2>
         <p class="text-center text-gray-600 mb-6">Enter your details to begin.</p>
         <div class="space-y-4">
           <input id="fullName" class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="Full Name">
           <input id="mobileNumber" type="tel" class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="Mobile (e.g. 0412 345 678)">
-          <button id="nextBtn" class="w-full bg-orange-500 text-white font-bold py-3 rounded-lg hover:bg-orange-600 transition-transform transform hover:scale-105 shadow-lg">Next</button>
+          <button onclick="saveUserInfo()" class="w-full bg-orange-500 text-white font-bold py-3 rounded-lg hover:bg-orange-600 transition-transform transform hover:scale-105 shadow-lg">Next</button>
         </div>
-        <button id="adminBtn" class="mt-4 w-full text-xs text-gray-400 hover:text-orange-500">Admin Login</button>
+        <button onclick="showAdminLogin()" class="mt-4 w-full text-xs text-gray-400 hover:text-orange-500">Admin Login</button>
       </div>
 
-      <!-- Avatar select page -->
+      <!-- Avatar -->
       <div id="avatarSection" class="section">
         <h2 class="text-3xl font-semibold text-center text-gray-800 mb-2">Choose your Avatar</h2>
         <p class="text-center text-gray-600 mb-4">Select one of the Dashavatara to answer from.</p>
@@ -76,7 +76,7 @@
           <p class="text-center text-gray-700 mb-3">Spin the wheel. Enter the question number you get.</p>
           <div class="flex gap-2">
             <input type="number" id="questionNumberInput" min="1" max="10" class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="Enter Q# (1–10)">
-            <button id="showQuestionBtn" class="bg-orange-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-orange-600"><i class="fa-solid fa-paper-plane"></i></button>
+            <button onclick="showQuestion()" class="bg-orange-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-orange-600"><i class="fa-solid fa-paper-plane"></i></button>
           </div>
         </div>
         <div id="questionArea" class="mt-6"></div>
@@ -85,13 +85,13 @@
       <!-- Admin -->
       <div id="adminSection" class="section">
         <h2 class="text-3xl font-semibold text-center text-gray-800 mb-4">📋 Admin Panel</h2>
-        <button id="downloadBtn" class="w-full bg-blue-500 text-white font-bold py-3 rounded-lg hover:bg-blue-600 shadow-lg mb-4">⬇️ Download Results CSV</button>
+        <button onclick="downloadResults()" class="w-full bg-blue-500 text-white font-bold py-3 rounded-lg hover:bg-blue-600 shadow-lg mb-4">⬇️ Download Results CSV</button>
         <div id="resultTableContainer" class="text-sm overflow-x-auto"></div>
       </div>
     </main>
   </div>
 
-  <!-- Generic modal -->
+  <!-- Modal -->
   <div id="customModal" class="modal-backdrop">
     <div class="modal-content bg-white w-full max-w-sm p-6 rounded-2xl shadow-xl text-center">
       <div id="modalIcon" class="text-5xl mb-4"></div>
@@ -104,65 +104,37 @@
     </div>
   </div>
 
-  <!-- Avatar Picker Modal -->
+  <!-- Avatar picker after correct answers -->
   <div id="avatarModal" class="modal-backdrop">
     <div class="modal-content bg-white w-full max-w-md p-6 rounded-2xl shadow-xl">
       <h3 class="text-2xl font-bold text-gray-800 mb-2 text-center">Choose your Avatar</h3>
       <p class="text-gray-600 mb-4 text-center">Great job! Pick the avatar for your next question.</p>
       <div id="avatarModalList" class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
       <div class="mt-4 text-center">
-        <button id="closeAvatarBtn" class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg">Close</button>
+        <button onclick="closeAvatarModal()" class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg">Close</button>
       </div>
     </div>
   </div>
 
   <script>
-    /* =========================
-       GOOGLE SHEETS ENDPOINT
-       ========================= */
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyD6r-A-9I2chujfjhQQrAwawGYpA2ppg47pNTPRIZ0-z8q8g5Wjq7BXUtnEKVU7sjgeQ/exec";
+    /********* GOOGLE SHEET WEB APP URL *********/
+    const SHEET_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxDvx2ppKkR3791D6z-7rzO8pY54J-45YaiIE8lkZj94vFMjGSa6thGgiNIKAaYjSGeyA/exec";
 
-    /* ======= UI HELPERS ======= */
-    const offlineBanner = document.getElementById('offlineBanner');
-    function setOfflineBanner(on){ offlineBanner.classList.toggle('active', !!on); }
-    function showSection(id){ document.querySelectorAll('.section').forEach(s=>s.classList.remove('active')); document.getElementById(id)?.classList.add('active'); }
-    function showModal(type,title,message,buttons=[]){
-      const m=document.getElementById('customModal');
-      document.getElementById('modalIcon').innerHTML={
-        success:'<i class="fa-solid fa-circle-check text-green-500"></i>',
-        error:'<i class="fa-solid fa-circle-xmark text-red-500"></i>',
-        win:'<i class="fa-solid fa-trophy text-yellow-500"></i>',
-        loss:'<i class="fa-solid fa-heart-crack text-gray-500"></i>',
-        prompt:'<i class="fa-solid fa-key text-blue-500"></i>'
-      }[type]||'';
-      document.getElementById('modalTitle').innerText=title;
-      document.getElementById('modalMessage').innerText=message;
-      const actions=document.getElementById('modalActions'); actions.innerHTML='';
-      const inputContainer=document.getElementById('modalInputContainer'); inputContainer.style.display=type==='prompt'?'block':'none';
-      if(type==='prompt') document.getElementById('modalInput').value='';
-      (buttons||[]).forEach(bi=>{
-        const el=bi.isLink?Object.assign(document.createElement('a'),{href:bi.href,target:'_blank',rel:'noopener noreferrer'}):document.createElement('button');
-        el.innerHTML=bi.text; el.className=`flex-1 text-white font-bold py-2 px-4 rounded-lg transition-all shadow-md ${bi.class||'bg-gray-500 hover:bg-gray-600'}`;
-        if(!bi.isLink) el.onclick=()=>{ if(type==='prompt') bi.callback?.(document.getElementById('modalInput').value); else bi.callback?.(); m.classList.remove('active'); };
-        actions.append(el);
-      });
-      m.classList.add('active');
-    }
-    function openAvatarModal(){ document.getElementById('avatarModal').classList.add('active'); }
-    function closeAvatarModal(){ document.getElementById('avatarModal').classList.remove('active'); }
-    document.getElementById('closeAvatarBtn').onclick=closeAvatarModal;
-
-    /* ======= GAME DATA ======= */
     const ADMIN_PASSWORD = "gopinath123";
     const AVATARS = [
-      { name: "Matsya", icon: "fish" }, { name: "Kurma", icon: "turtle" },
-      { name: "Varaha", icon: "hippo" }, { name: "Narasimha", icon: "lion" },
-      { name: "Vamana", icon: "child-reaching" }, { name: "Parashurama", icon: "gavel" },
-      { name: "Rama", icon: "bullseye" }, { name: "Krishna", icon: "feather-pointed" },
-      { name: "Buddha", icon: "om" }, { name: "Kalki", icon: "horse" }
+      { name: "Matsya", icon: "fish" },
+      { name: "Kurma", icon: "turtle" },
+      { name: "Varaha", icon: "hippo" },
+      { name: "Narasimha", icon: "lion" },
+      { name: "Vamana", icon: "child-reaching" },
+      { name: "Parashurama", icon: "gavel" },
+      { name: "Rama", icon: "bullseye" },
+      { name: "Krishna", icon: "feather-pointed" },
+      { name: "Buddha", icon: "om" },
+      { name: "Kalki", icon: "horse" }
     ];
 
-    // === RAW QUESTIONS (FULL) ===
+    // QUESTIONS (keys like 11..1010: first digit = avatar, rest = question #)
     const RAW_QUESTIONS = {
       11:{question:"What is the primary purpose of Lord Vishnu’s Matsya (fish) incarnation?",options:["To kill demons on land","To save the Vedas and protect the righteous","To create new worlds","To teach humans how to fish"],answer:"B"},
       12:{question:"Who was the great king that received protection from the Matsya incarnation?",options:["King Harishchandra","King Satyavrata (Śrāddhadeva)","King Janamejaya","King Dhruva"],answer:"B"},
@@ -275,55 +247,79 @@
       1010:{question:"Who is Kalki?",options:["A powerful king","A prophet","The final avatar of Vishnu","A sage"],answer:"C"}
     };
 
-    // Build QUESTION_BANK (fixed parsing for avatar 10)
+    // Build QUESTION_BANK: 10 avatars × 10 questions
     const QUESTION_BANK = {}; for (let i=1;i<=10;i++) QUESTION_BANK[i] = new Array(10).fill(null);
     Object.keys(RAW_QUESTIONS).forEach(k=>{
       const key = k.toString();
-      // FIX: handle "10x" keys for Kalki properly
-      const avatarIdx = key.startsWith('10') ? 10 : parseInt(key[0],10);
-      const qNum = key.startsWith('10') ? parseInt(key.slice(2),10) : parseInt(key.slice(1),10);
+      const avatarIdx = parseInt(key[0],10);
+      const qNum = parseInt(key.slice(1),10);
       const qObj = RAW_QUESTIONS[k];
       if (avatarIdx>=1 && avatarIdx<=10 && qNum>=1 && qNum<=10) {
         QUESTION_BANK[avatarIdx][qNum-1] = qObj;
       }
     });
 
-    /* ======= STATE ======= */
+    // STATE
     let currentUserName="", currentUserMobile="", selectedAvatarIndex=null, correctStreak=0;
-    let allAttempts=[], allWinners=[];
-    let correctAnsweredSet = new Set();
+    let allAttempts=[], allWinners=[]; let offlineMode=false;
     const winSound = new Audio("https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3");
+    let correctAnsweredSet = new Set();
 
-    /* ======= GOOGLE SHEETS LOGGING ======= */
-    async function postToSheets(payload){
+    // UI helpers
+    window.showSection = id => { document.querySelectorAll('.section').forEach(s=>s.classList.remove('active')); document.getElementById(id)?.classList.add('active'); };
+    function updateOfflineBanner(){ document.getElementById('offlineBanner').classList.toggle('active', offlineMode); }
+
+    // Mobile validation (AU)
+    function normaliseAuMobile(input){
+      const digits=input.replace(/[^\d+]/g,'');
+      const auMobileRegex=/^(?:\+?61|0)4\d{8}$/;
+      if(!auMobileRegex.test(digits.replace(/\s/g,''))) return null;
+      if(digits.startsWith('0')) return '+61'+digits.slice(1);
+      if(digits.startsWith('61')) return '+'+digits;
+      return digits;
+    }
+
+    // ======= SHEET POST (FormData to avoid CORS preflight) =======
+    async function postToSheet(type, payload){
       try{
-        await fetch(GOOGLE_SCRIPT_URL, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: {'Content-Type':'application/json'},
-          body: JSON.stringify(payload)
-        });
-        setOfflineBanner(false);
+        const fd = new FormData();
+        fd.append('type', type);
+        Object.entries(payload).forEach(([k,v])=> fd.append(k, String(v)));
+        await fetch(SHEET_WEBAPP_URL, { method: 'POST', body: fd, mode: 'no-cors' });
+        // no-cors: we can't read the response, but Apps Script still receives it.
         return true;
       }catch(err){
-        console.warn('Sheets post failed; falling back to localStorage', err);
-        setOfflineBanner(true);
+        console.warn('Sheet post failed:', err);
         return false;
       }
     }
-    async function saveAttemptDoc(row){
-      await postToSheets({type:'attempt', ...row});
-      allAttempts=[{...row,id:`loc_${Date.now()}`}, ...allAttempts];
-      localStorage.setItem('quiz_attempts', JSON.stringify(allAttempts));
+    async function saveAttemptDoc(payload){
+      const ok = await postToSheet('attempt', payload);
+      if(!ok){ offlineMode=true; updateOfflineBanner();
+        allAttempts=[...allAttempts,{...payload,id:`local_${Date.now()}`}];
+        localStorage.setItem('quiz_attempts', JSON.stringify(allAttempts));
+      }
     }
-    async function saveWinnerDoc(row){
-      await postToSheets({type:'winner', ...row});
-      allWinners=[{...row,id:`loc_${Date.now()}`}, ...allWinners];
-      localStorage.setItem('quiz_winners', JSON.stringify(allWinners));
+    async function saveWinnerDoc(payload){
+      const ok = await postToSheet('winner', payload);
+      if(!ok){ offlineMode=true; updateOfflineBanner();
+        allWinners=[...allWinners,{...payload,id:`local_${Date.now()}`}];
+        localStorage.setItem('quiz_winners', JSON.stringify(allWinners));
+      }
     }
 
-    /* ======= RENDERERS ======= */
-    function renderAvatarButtons(){
+    // Handlers
+    window.saveUserInfo = () => {
+      const name=document.getElementById('fullName').value.trim();
+      const mobileRaw=document.getElementById('mobileNumber').value.trim();
+      if(!name||!mobileRaw){ showModal('error','Incomplete Details','Please enter both your name and mobile number.',[{text:'Okay'}]); return; }
+      const normalised=normaliseAuMobile(mobileRaw);
+      if(!normalised){ showModal('error','Invalid Number','Please enter a valid Australian mobile (04XXXXXXXX or +614XXXXXXXX).',[{text:'Okay'}]); return; }
+      currentUserName=name; currentUserMobile=normalised;
+      showSection('avatarSection');
+    };
+
+    window.renderAvatarButtons = () => {
       const container=document.getElementById('avatarList'); container.innerHTML='';
       AVATARS.forEach((a,idx)=>{
         const card=document.createElement('div');
@@ -332,7 +328,8 @@
         card.innerHTML=`<i class="fa-solid fa-${a.icon} text-4xl text-orange-500 mb-2"></i><p class="font-semibold text-gray-700">${a.name}</p>`;
         container.appendChild(card);
       });
-    }
+    };
+
     function renderAvatarModal(){
       const container=document.getElementById('avatarModalList'); container.innerHTML='';
       AVATARS.forEach((a,idx)=>{
@@ -344,20 +341,27 @@
       });
     }
 
-    /* ======= FLOW ======= */
-    function selectAvatar(idx){
+    window.selectAvatar = idx => {
       selectedAvatarIndex = idx + 1;
       document.getElementById('selectedAvatarDisplay').innerText = `Avatar: ${AVATARS[idx].name}`;
       showSection('quizSection');
-    }
-    function getQuestion(avatarIdx,qNum){ return (QUESTION_BANK[avatarIdx]||[])[qNum-1] || null; }
+    };
 
-    function showQuestion(){
+    function getQuestion(avatarIdx,qNum){
+      const arr=QUESTION_BANK[avatarIdx]||[];
+      return arr[qNum-1]||null;
+    }
+
+    window.showQuestion = () => {
       const qn=parseInt(document.getElementById('questionNumberInput').value,10);
       if(isNaN(qn)||qn<1||qn>10){ showModal('error','Invalid Question','Please enter a number between 1 and 10.',[{text:'Okay'}]); return; }
       if(!selectedAvatarIndex){ showModal('error','No Avatar','Please select an avatar first.',[{text:'Choose Avatar', class:'bg-orange-500 hover:bg-orange-600', callback:()=>{ showSection('avatarSection'); }}]); return; }
+
       const key = `${selectedAvatarIndex}-${qn}`;
-      if (correctAnsweredSet.has(key)) { showModal('error','Already Answered','You already cleared this one for this avatar. Pick a different number.',[{text:'Okay'}]); return; }
+      if (correctAnsweredSet.has(key)) {
+        showModal('error','Already Answered','You already answered this one correctly for this avatar. Try a different question number.',[{text:'Okay'}]);
+        return;
+      }
 
       const data=getQuestion(selectedAvatarIndex, qn);
       const area=document.getElementById('questionArea');
@@ -366,45 +370,53 @@
       let html=`<p class="text-lg font-semibold text-center mb-4">${data.question}</p><div class="space-y-3">`;
       data.options.forEach((opt,i)=>{
         const label=String.fromCharCode(65+i);
-        html+=`<button id="ans-${label}" class="w-full text-left p-3 bg-white border-2 border-orange-200 rounded-lg hover:bg-orange-100 hover:border-orange-400 transition-all"
-                 data-label="${label}">${label}) ${opt}</button>`;
+        html+=`<button id="ans-${label}" onclick="checkAnswer(this,'${label}','${data.answer}',${selectedAvatarIndex},${qn})" class="w-full text-left p-3 bg-white border-2 border-orange-200 rounded-lg hover:bg-orange-100 hover:border-orange-400 transition-all">${label}) ${opt}</button>`;
       });
       html+=`</div>`;
       area.innerHTML=html;
+    };
 
-      area.querySelectorAll('button[id^="ans-"]').forEach(btn=>{
-        btn.addEventListener('click', ()=>checkAnswer(btn, btn.dataset.label, data.answer, selectedAvatarIndex, qn));
-      });
-    }
-
-    async function checkAnswer(btn, userAns, correctAns, avatarIdx, qNum){
+    window.checkAnswer = async (btn, userAns, correctAns, avatarIdx, qNum) => {
       document.querySelectorAll('#questionArea button').forEach(b=>b.disabled=true);
       const isCorrect = userAns===correctAns;
+
       if(isCorrect){
         btn.classList.add('!bg-green-500','text-white','!border-green-700','font-bold'); btn.innerHTML+=' <i class="fa-solid fa-check"></i>';
       } else {
         btn.classList.add('!bg-red-500','text-white','!border-red-700','font-bold'); btn.innerHTML+=' <i class="fa-solid fa-xmark"></i>';
       }
 
-      await saveAttemptDoc({
-        name: currentUserName, mobile: currentUserMobile,
-        avatar: AVATARS[avatarIdx-1]?.name || '', avatarIndex: avatarIdx,
-        questionNumber: qNum, selectedAnswer: userAns, correct: isCorrect,
-        timestamp: { seconds: Math.floor(Date.now()/1000) }
-      });
+      try{
+        await saveAttemptDoc({
+          name: currentUserName, mobile: currentUserMobile,
+          avatar: AVATARS[avatarIdx-1]?.name || '', avatarIndex: avatarIdx,
+          questionNumber: qNum, selectedAnswer: userAns, correct: isCorrect
+        });
+      }catch(e){ console.error('Save error', e); }
 
-      setTimeout(async ()=>{
+      setTimeout(()=>{
         if(isCorrect){
           correctAnsweredSet.add(`${avatarIdx}-${qNum}`);
           correctStreak++; updateStreakTracker(correctStreak);
           resetQuestionUI();
-          if(correctStreak>=3){ await handleWin(); }
+          if(correctStreak>=3){ handleWin(); }
           else { openAvatarModal(); }
         } else {
           correctStreak=0; updateStreakTracker(0);
           showModal('loss','Not quite…','Try another question number.',[{text:'Okay', class:'bg-orange-500 hover:bg-orange-600', callback:()=>{ resetQuestionUI(); }}]);
         }
       },900);
+    };
+
+    function resetQuestionUI(){ document.getElementById('questionArea').innerHTML=''; document.getElementById('questionNumberInput').value=''; }
+
+    async function handleWin(){
+      try{ await saveWinnerDoc({name:currentUserName,mobile:currentUserMobile}); }catch{}
+      launchFireworks(); try{ await winSound.play(); }catch{}
+      showModal('win','🪷 You Won! 🪷','Hare Krishna! Show this to a youth member for your prize.',[
+        { text:'<i class="fa-brands fa-instagram"></i> Follow Us', isLink:true, href:'https://www.instagram.com/iskcon_ns_youth/', class:'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600' },
+        { text:'Play Again', class:'bg-gray-500 hover:bg-gray-600', callback:restartGame }
+      ]);
     }
 
     function updateStreakTracker(streak){
@@ -412,70 +424,77 @@
         if(i<streak) icon.classList.replace('text-gray-300','text-yellow-400'); else icon.classList.replace('text-yellow-400','text-gray-300');
       });
     }
-    function resetQuestionUI(){ document.getElementById('questionArea').innerHTML=''; document.getElementById('questionNumberInput').value=''; }
-    async function handleWin(){
-      await saveWinnerDoc({name:currentUserName,mobile:currentUserMobile,timestamp:{seconds:Math.floor(Date.now()/1000)}});
-      launchFireworks(); try{ await winSound.play(); }catch{}
-      showModal('win','🪷 You Won! 🪷','Hare Krishna! Show this to a youth member for your prize.',[
-        { text:'<i class="fa-brands fa-instagram"></i> Follow Us', isLink:true, href:'https://www.instagram.com/iskcon_ns_youth/', class:'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600' },
-        { text:'Play Again', class:'bg-gray-500 hover:bg-gray-600', callback:restartGame }
-      ]);
-    }
     function restartGame(){
       correctStreak=0; selectedAvatarIndex=null; currentUserName=""; currentUserMobile="";
-      correctAnsweredSet = new Set(); document.getElementById('selectedAvatarDisplay').innerText='';
+      correctAnsweredSet = new Set();
+      document.getElementById('selectedAvatarDisplay').innerText='';
       document.getElementById('fullName').value=''; document.getElementById('mobileNumber').value='';
       resetQuestionUI(); showSection('userSection');
     }
 
-    /* ======= ADMIN ======= */
+    // Admin
+    window.showAdminLogin=()=>{
+      showModal('prompt','Admin Access','Enter the admin password.',[
+        { text:'Login', class:'bg-blue-500 hover:bg-blue-600', callback:pwd=>{
+          if(pwd===ADMIN_PASSWORD){ showResultsTable(); showSection('adminSection'); }
+          else{ showModal('error','Access Denied','Incorrect password.',[{text:'Okay'}]); }
+        }}
+      ]);
+    };
+    window.downloadResults=()=>{
+      const hasData=(allAttempts?.length||0)+(allWinners?.length||0)>0;
+      if(!hasData){ showModal('error','No Data','No offline results to download yet (online results are in Google Sheets).',[{text:'Okay'}]); return; }
+      const attemptHeaders=["Name","Mobile","Avatar","AvatarIdx","Q#","Correct","Time"];
+      const attemptRows=(allAttempts||[]).map(r=>{
+        const time=new Date().toLocaleString();
+        return [r.name,r.mobile,r.avatar,r.avatarIndex||'',r.questionNumber||'',r.correct?'Yes':'No',time];
+      });
+      const winnerHeaders=["Name","Mobile","Time"];
+      const winnerRows=(allWinners||[]).map(w=>[w.name,w.mobile,new Date().toLocaleString()]);
+      const csvAttempts=[attemptHeaders,...attemptRows].map(r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(",")).join("\n");
+      const csvWinners=[winnerHeaders,...winnerRows].map(r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(",")).join("\n");
+      const final="Attempts\n"+csvAttempts+"\n\nWinners\n"+csvWinners;
+      const blob=new Blob([final],{type:'text/csv'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='quiz_results_offline.csv'; a.click();
+    };
     function showResultsTable(){
       const c=document.getElementById('resultTableContainer'); let html="";
       if(allAttempts && allAttempts.length){
-        html+="<h3 class='text-xl font-bold mb-2 text-gray-700'>Quiz Attempts (local copy)</h3><table class='w-full border-collapse'><thead class='bg-gray-200'><tr><th class='p-2 border'>Name</th><th class='p-2 border'>Mobile</th><th class='p-2 border'>Avatar</th><th class='p-2 border'>AvatarIdx</th><th class='p-2 border'>Q#</th><th class='p-2 border'>Correct</th></tr></thead><tbody>";
+        html+="<h3 class='text-xl font-bold mb-2 text-gray-700'>Offline Attempts</h3><table class='w-full border-collapse'><thead class='bg-gray-200'><tr><th class='p-2 border'>Name</th><th class='p-2 border'>Mobile</th><th class='p-2 border'>Avatar</th><th class='p-2 border'>AvatarIdx</th><th class='p-2 border'>Q#</th><th class='p-2 border'>Correct</th></tr></thead><tbody>";
         [...allAttempts].forEach(r=>{
           html+=`<tr class='border-b'><td class='p-2 border'>${r.name||''}</td><td class='p-2 border'>${r.mobile||''}</td><td class='p-2 border'>${r.avatar||''}</td><td class='p-2 border'>${r.avatarIndex||''}</td><td class='p-2 border'>${r.questionNumber||''}</td><td class='p-2 border ${r.correct?'text-green-600':'text-red-600'}'>${r.correct?'Yes':'No'}</td></tr>`;
         });
         html+="</tbody></table>";
       }
       if(allWinners && allWinners.length){
-        html+="<h3 class='text-xl font-bold mt-6 mb-2 text-gray-700'>🎉 Winners (local copy)</h3><table class='w-full border-collapse'><thead class='bg-gray-200'><tr><th class='p-2 border'>Name</th><th class='p-2 border'>Mobile</th><th class='p-2 border'>Time</th></tr></thead><tbody>";
+        html+="<h3 class='text-xl font-bold mt-6 mb-2 text-gray-700'>Offline Winners</h3><table class='w-full border-collapse'><thead class='bg-gray-200'><tr><th class='p-2 border'>Name</th><th class='p-2 border'>Mobile</th></tr></thead><tbody>";
         [...allWinners].forEach(w=>{
-          const time=w.timestamp? new Date((w.timestamp.seconds||Math.floor(Date.now()/1000))*1000).toLocaleString(): 'N/A';
-          html+=`<tr class='border-b'><td class='p-2 border'>${w.name||''}</td><td class='p-2 border'>${w.mobile||''}</td><td class='p-2 border'>${time}</td></tr>`;
+          html+=`<tr class='border-b'><td class='p-2 border'>${w.name||''}</td><td class='p-2 border'>${w.mobile||''}</td></tr>`;
         });
         html+="</tbody></table>";
       }
-      c.innerHTML = html || "<p>No local results yet. (Authoritative data is in the Google Sheet.)</p>";
-    }
-    function downloadResults(){
-      const hasData=(allAttempts?.length||0)+(allWinners?.length||0)>0;
-      if(!hasData){ showModal('error','No Data','No local results to download yet.',[{text:'Okay'}]); return; }
-      const attemptHeaders=["Name","Mobile","Avatar","AvatarIdx","Q#","Correct","Time"];
-      const attemptRows=(allAttempts||[]).map(r=>{
-        const time=r.timestamp? new Date((r.timestamp.seconds||Math.floor(Date.now()/1000))*1000).toLocaleString(): 'N/A';
-        return [r.name,r.mobile,r.avatar,r.avatarIndex||'',r.questionNumber||'',r.correct?'Yes':'No',time];
-      });
-      const winnerHeaders=["Name","Mobile","Time"];
-      const winnerRows=(allWinners||[]).map(w=>{
-        const time=w.timestamp? new Date((w.timestamp.seconds||Math.floor(Date.now()/1000))*1000).toLocaleString(): 'N/A';
-        return [w.name,w.mobile,time];
-      });
-      const csvAttempts=[attemptHeaders,...attemptRows].map(r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(",")).join("\n");
-      const csvWinners=[winnerHeaders,...winnerRows].map(r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(",")).join("\n");
-      const final="Attempts\n"+csvAttempts+"\n\nWinners\n"+csvWinners;
-      const blob=new Blob([final],{type:'text/csv'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='quiz_results_local.csv'; a.click();
+      c.innerHTML = html || "<p>No offline data stored. Online results go straight to Google Sheets.</p>";
     }
 
-    /* ======= UTIL ======= */
-    function normaliseAuMobile(input){
-      const digits=input.replace(/[^\d+]/g,'');
-      const auMobileRegex=/^(?:\+?61|0)4\d{8}$/;
-      if(!auMobileRegex.test(digits.replace(/\s/g,''))) return null;
-      if(digits.startsWith('0')) return '+61'+digits.slice(1);
-      if(digits.startsWith('61')) return '+'+digits;
-      return digits;
-    }
+    // Modal helpers
+    window.showModal=(type,title,message,buttons=[])=>{
+      const m=document.getElementById('customModal');
+      document.getElementById('modalIcon').innerHTML={success:'<i class="fa-solid fa-circle-check text-green-500"></i>',error:'<i class="fa-solid fa-circle-xmark text-red-500"></i>',win:'<i class="fa-solid fa-trophy text-yellow-500"></i>',loss:'<i class="fa-solid fa-heart-crack text-gray-500"></i>',prompt:'<i class="fa-solid fa-key text-blue-500"></i>'}[type]||'';
+      document.getElementById('modalTitle').innerText=title; document.getElementById('modalMessage').innerText=message;
+      const actions=document.getElementById('modalActions'); actions.innerHTML='';
+      const inputContainer=document.getElementById('modalInputContainer'); inputContainer.style.display=type==='prompt'?'block':'none';
+      if(type==='prompt') document.getElementById('modalInput').value='';
+      (buttons||[]).forEach(bi=>{
+        const el=bi.isLink?Object.assign(document.createElement('a'),{href:bi.href,target:'_blank',rel:'noopener noreferrer'}):document.createElement('button');
+        el.innerHTML=bi.text; el.className=`flex-1 text-white font-bold py-2 px-4 rounded-lg transition-all shadow-md ${bi.class||'bg-gray-500 hover:bg-gray-600'}`;
+        if(!bi.isLink) el.onclick=()=>{ if(type==='prompt') bi.callback?.(document.getElementById('modalInput').value); else bi.callback?.(); m.classList.remove('active'); };
+        actions.append(el);
+      });
+      m.classList.add('active');
+    };
+    function openAvatarModal(){ document.getElementById('avatarModal').classList.add('active'); }
+    function closeAvatarModal(){ document.getElementById('avatarModal').classList.remove('active'); }
+    window.closeAvatarModal = closeAvatarModal;
+
     function launchFireworks(){
       const c=document.getElementById('app-container'); const rect=c.getBoundingClientRect();
       for(let i=0;i<36;i++){
@@ -486,38 +505,17 @@
       }
     }
 
-    /* ======= WIRING ======= */
-    document.getElementById('nextBtn').onclick = ()=>{
-      const name=document.getElementById('fullName').value.trim();
-      const mobileRaw=document.getElementById('mobileNumber').value.trim();
-      if(!name||!mobileRaw){ showModal('error','Incomplete Details','Please enter both your name and mobile number.',[{text:'Okay'}]); return; }
-      const normalised=normaliseAuMobile(mobileRaw);
-      if(!normalised){ showModal('error','Invalid Number','Please enter a valid Australian mobile (04XXXXXXXX or +614XXXXXXXX).',[{text:'Okay'}]); return; }
-      currentUserName=name; currentUserMobile=normalised;
-      showSection('avatarSection');
-    };
-    document.getElementById('adminBtn').onclick = ()=>{
-      showModal('prompt','Admin Access','Enter the admin password.',[
-        { text:'Login', class:'bg-blue-500 hover:bg-blue-600', callback:pwd=>{
-          if(pwd===ADMIN_PASSWORD){ showResultsTable(); showSection('adminSection'); }
-          else{ showModal('error','Access Denied','Incorrect password.',[{text:'Okay'}]); }
-        }}
-      ]);
-    };
-    document.getElementById('showQuestionBtn').onclick = showQuestion;
-    document.getElementById('downloadBtn').onclick = downloadResults;
-
-    // Boot
-    (function init(){
+    // Bootstrap
+    window.onload=()=>{ 
+      renderAvatarButtons(); 
+      renderAvatarModal(); 
       try{
-        allAttempts=JSON.parse(localStorage.getItem('quiz_attempts')||'[]');
-        allWinners=JSON.parse(localStorage.getItem('quiz_winners')||'[]');
-      }catch{}
-      renderAvatarButtons(); renderAvatarModal();
-      setOfflineBanner(!navigator.onLine);
-      window.addEventListener('online', ()=>setOfflineBanner(false));
-      window.addEventListener('offline', ()=>setOfflineBanner(true));
-    })();
+        // try a tiny post to check online mode (won't write anything)
+        fetch(SHEET_WEBAPP_URL, { method:'HEAD', mode:'no-cors' })
+          .then(()=>{ offlineMode=false; updateOfflineBanner(); })
+          .catch(()=>{ offlineMode=true; updateOfflineBanner(); });
+      }catch{ offlineMode=true; updateOfflineBanner(); }
+    };
   </script>
 </body>
 </html>

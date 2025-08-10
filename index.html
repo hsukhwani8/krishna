@@ -1,183 +1,143 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Gopi Dots Quiz</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Krishna Quiz – Janmashtami Celebration</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Teko:wght@400;600;700&family=Hind:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <style>
-    body {
-      font-family: sans-serif;
-      padding: 0;
-      margin: 0;
-      background-image: url('https://i.postimg.cc/hv2RJF2j/radha-krishna.png');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      background-attachment: scroll;
-      color: #222;
-      min-height: 100vh;
-      position: relative;
-    }
-    /* Overlay for better readability */
-    .bg-overlay {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(255,255,255,0.45); /* reduced opacity for more background visibility */
-      z-index: 0;
-      pointer-events: none;
-      /* Optional: add a subtle blur, remove if not needed */
-      backdrop-filter: blur(2px);
-    }
-    .main-container {
-      position: relative;
-      z-index: 1;
-      max-width: 420px;
-      margin: 40px auto 0 auto;
-      background: rgba(255,255,255,0.92);
-      border-radius: 18px;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.13);
-      padding: 32px 24px 24px 24px;
-      min-height: 70vh;
-    }
-    h1, h2 {
-      text-align: center;
-      color: #3b2e1a;
-      margin-top: 0;
-    }
-    .tab { display: none; }
-    .active { display: block; }
-    .avatar-button {
-      margin: 7px 5px;
-      padding: 10px 18px;
-      background: rgba(255, 255, 255, 0.85);
-      border-radius: 7px;
-      cursor: pointer;
-      border: 1px solid #bdbdbd;
-      font-weight: 500;
-      transition: background 0.2s, box-shadow 0.2s;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-    }
-    .avatar-button:hover {
-      background: #f5e7d6;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    }
-    input, button {
-      padding: 9px;
-      margin: 7px 0;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      font-size: 1em;
-      background: #faf9f6;
-      color: #222;
-      width: 100%;
-      box-sizing: border-box;
-    }
-    button {
-      background: #f7d9b9;
-      color: #3b2e1a;
-      font-weight: 600;
-      border: 1px solid #e0b97d;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    button:hover {
-      background: #ffe5c2;
-    }
-    #questionArea button {
-      background-color: #fff;
-      margin: 3px 0;
-      border: 1px solid #999;
-      width: auto;
-      display: inline-block;
-    }
-    #selectedAvatarDisplay {
-      font-weight: 500;
-      color: #7a4b13;
-      margin-bottom: 10px;
-    }
-    @keyframes fireworks {
-      0% { transform: scale(0); opacity: 1; }
-      100% { transform: scale(3); opacity: 0; }
-    }
-    .firework {
-      position: fixed;
-      width: 10px;
-      height: 10px;
-      background: gold;
-      border-radius: 50%;
-      animation: fireworks 1s ease-out forwards;
-    }
-    @media screen and (max-width: 600px) {
-      body {
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-end; /* Move content to bottom */
-        align-items: center;
-        min-height: 100vh;
-      }
-      .main-container {
-        padding: 12px 4vw 18px 4vw;
-        margin: 0 0 18px 0; /* Add bottom margin */
-        min-height: unset;
-      }
-      h1, h2 {
-        font-size: 1.2em;
-      }
-      input, button {
-        font-size: 16px;
-      }
-    }
+    body{font-family:'Hind',sans-serif;background:linear-gradient(135deg,#1a2a6c,#b21f1f,#fdbb2d);background-size:400% 400%;animation:gradientBG 15s ease infinite;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem}
+    @keyframes gradientBG{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+    .section{display:none}.section.active{display:block;animation:fadeIn .4s ease}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    .modal-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:40;align-items:center;justify-content:center}
+    .modal-backdrop.active{display:flex}
+    .modal-content{transform:scale(.92);opacity:0;transition:all .25s}.modal-backdrop.active .modal-content{transform:scale(1);opacity:1}
+    #offlineBanner{display:none}#offlineBanner.active{display:block}
+    .firework{position:absolute;width:10px;height:10px;border-radius:50%;animation:fireworks 1s ease-out forwards;pointer-events:none}
+    @keyframes fireworks{0%{transform:scale(0);opacity:1}100%{transform:scale(3);opacity:0}}
   </style>
 </head>
 <body>
-  <div class="bg-overlay"></div>
-  <div class="main-container">
-    <h1>🌹 Krishna Quiz</h1>
+  <div id="app-container" class="w-full max-w-md mx-auto bg-white/90 backdrop-blur-sm rounded-2xl shadow-2xl overflow-hidden relative">
+    <header class="p-6 bg-gradient-to-r from-orange-500 to-yellow-400 text-white text-center shadow-md">
+      <div class="h-24 flex items-center justify-center mb-2">
+        <img id="headerImg" src="https://png.pngtree.com/png-clipart/20250228/original/pngtree-cute-krishna-eating-makhan-png-image_20530500.png" alt="Krishna illustration" class="h-24"
+             onerror="this.style.display='none';document.getElementById('headerImgFallback').style.display='block';">
+        <div id="headerImgFallback" style="display:none" class="text-4xl">🪷🦚</div>
+      </div>
+      <h1 class="text-4xl font-bold" style="font-family:'Teko',sans-serif">KRISHNA QUIZ</h1>
+      <p class="font-light">Janmashtami Celebration 2025</p>
+      <p class="font-semibold text-sm mt-1">ISKCON</p>
+    </header>
 
-  <div>
-    <button onclick="tryShowTab('userTab')">User</button>
-    <button onclick="tryShowTab('avatarTab')">Avatar</button>
-    <button onclick="tryShowTab('quizTab')">Quiz</button>
-    <button onclick="tryShowTab('adminTab')">Admin</button>
-  </div>
-
-    <div id="userTab" class="tab active">
-      <h2>User Info</h2>
-      Name: <input id="fullName"><br>
-      Mobile: <input id="mobileNumber"><br>
-      <button onclick="saveUserInfo()">Save & Continue</button>
+    <div id="offlineBanner" class="px-4 py-2 text-sm bg-amber-100 text-amber-900 border-b border-amber-300">
+      Running in <strong>offline mode</strong> — results are saved locally and can be exported from Admin.
     </div>
 
-    <div id="avatarTab" class="tab">
-      <h2>Select Avatar</h2>
-      <div id="avatarList"></div>
-    </div>
+    <main class="p-6">
+      <!-- Contact details -->
+      <div id="userSection" class="section active">
+        <h2 class="text-3xl font-semibold text-center text-gray-800 mb-4">Welcome!</h2>
+        <p class="text-center text-gray-600 mb-6">Enter your details to begin.</p>
+        <div class="space-y-4">
+          <input id="fullName" class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="Full Name">
+          <input id="mobileNumber" type="tel" class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="Mobile (e.g. 0412 345 678)">
+          <button onclick="saveUserInfo()" class="w-full bg-orange-500 text-white font-bold py-3 rounded-lg hover:bg-orange-600 transition-transform transform hover:scale-105 shadow-lg">Next</button>
+        </div>
+        <button onclick="showAdminLogin()" class="mt-4 w-full text-xs text-gray-400 hover:text-orange-500">Admin Login</button>
+      </div>
 
-    <div id="quizTab" class="tab">
-      <h2>Question</h2>
-      <p id="selectedAvatarDisplay">Selected Avatar: ❌ None</p>
-      Question Number: <input type="number" id="questionNumberInput"><br>
-      <button onclick="showQuestion()">Get Question</button>
-      <div id="questionArea"></div>
+      <!-- Avatar select page -->
+      <div id="avatarSection" class="section">
+        <h2 class="text-3xl font-semibold text-center text-gray-800 mb-2">Choose your Avatar</h2>
+        <p class="text-center text-gray-600 mb-4">Select one of the Dashavatara to answer from.</p>
+        <div id="avatarList" class="grid grid-cols-2 sm:grid-cols-3 gap-4"></div>
+      </div>
+
+      <!-- Quiz -->
+      <div id="quizSection" class="section">
+        <div class="flex justify-between items-center mb-4">
+          <div>
+            <h2 class="text-3xl font-semibold text-gray-800">The Quiz</h2>
+            <p id="selectedAvatarDisplay" class="text-orange-600 font-semibold"></p>
+          </div>
+          <div id="streak-tracker" class="flex gap-2">
+            <i class="fa-solid fa-feather-pointed text-gray-300 text-2xl"></i>
+            <i class="fa-solid fa-feather-pointed text-gray-300 text-2xl"></i>
+            <i class="fa-solid fa-feather-pointed text-gray-300 text-2xl"></i>
+          </div>
+        </div>
+        <div class="bg-gray-100 p-4 rounded-lg shadow-inner mb-6">
+          <p class="text-center text-gray-700 mb-3">Spin the wheel. Enter the question number you get.</p>
+          <div class="flex gap-2">
+            <input type="number" id="questionNumberInput" min="1" max="10" class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="Enter Q# (1–10)">
+            <button onclick="showQuestion()" class="bg-orange-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-orange-600"><i class="fa-solid fa-paper-plane"></i></button>
+          </div>
+        </div>
+        <div id="questionArea" class="mt-6"></div>
+      </div>
+
+      <!-- Admin -->
+      <div id="adminSection" class="section">
+        <h2 class="text-3xl font-semibold text-center text-gray-800 mb-4">📋 Admin Panel</h2>
+        <button onclick="downloadResults()" class="w-full bg-blue-500 text-white font-bold py-3 rounded-lg hover:bg-blue-600 shadow-lg mb-4">⬇️ Download Results CSV</button>
+        <div id="resultTableContainer" class="text-sm overflow-x-auto"></div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Generic modal -->
+  <div id="customModal" class="modal-backdrop">
+    <div class="modal-content bg-white w-full max-w-sm p-6 rounded-2xl shadow-xl text-center">
+      <div id="modalIcon" class="text-5xl mb-4"></div>
+      <h3 id="modalTitle" class="text-2xl font-bold text-gray-800 mb-2"></h3>
+      <p id="modalMessage" class="text-gray-600 mb-6"></p>
+      <div id="modalInputContainer" class="mb-4 hidden">
+        <input id="modalInput" type="password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="Enter Password">
+      </div>
+      <div id="modalActions" class="flex gap-3 justify-center"></div>
     </div>
-    
-    <div id="adminTab" class="tab">
-    <h2>📋 Quiz Results</h2>
-    <button onclick="downloadResults()">⬇️ Download Results CSV</button>
-    <div id="resultTableContainer"></div>
   </div>
+
+  <!-- Avatar Picker Modal (used after EACH correct answer) -->
+  <div id="avatarModal" class="modal-backdrop">
+    <div class="modal-content bg-white w-full max-w-md p-6 rounded-2xl shadow-xl">
+      <h3 class="text-2xl font-bold text-gray-800 mb-2 text-center">Choose your Avatar</h3>
+      <p class="text-gray-600 mb-4 text-center">Great job! Pick the avatar for your next question.</p>
+      <div id="avatarModalList" class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
+      <div class="mt-4 text-center">
+        <button onclick="closeAvatarModal()" class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg">Close</button>
+      </div>
+    </div>
   </div>
-  
-  <script>
-    const ADMIN_PASSWORD = "gopinath123"
-    const avatars = ["Matsya", "Kurma", "Varaha", "Narasimha", "Vamana", "Parashurama", "Rama", "Krishna", "Buddha", "Kalki"];
-    let selectedAvatarIndex = null;
-    let resultDatabase = [];
-    let winnerList = [];
-    let correctStreak = 0;
-    const winSound = new Audio("https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3");
-    
-    const questions = {
+
+  <script type="module">
+    // Firebase (optional) with offline fallback
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    const ADMIN_PASSWORD = "gopinath123";
+    const AVATARS = [
+      { name: "Matsya", icon: "fish" },
+      { name: "Kurma", icon: "turtle" },
+      { name: "Varaha", icon: "hippo" },
+      { name: "Narasimha", icon: "lion" },
+      { name: "Vamana", icon: "child-reaching" },
+      { name: "Parashurama", icon: "gavel" },
+      { name: "Rama", icon: "bullseye" },
+      { name: "Krishna", icon: "feather-pointed" },
+      { name: "Buddha", icon: "om" },
+      { name: "Kalki", icon: "horse" }
+    ];
+
+    // RAW questions from your 11..1010 scheme (first digit = avatar, rest = question #)
+    const RAW_QUESTIONS = {
       11: { question: "What is the primary purpose of Lord Vishnu’s Matsya (fish) incarnation?", options: ["To kill demons on land", "To save the Vedas and protect the righteous", "To create new worlds", "To teach humans how to fish"], answer: "B" },
       12: { question: "Who was the great king that received protection from the Matsya incarnation?", options: ["King Harishchandra", "King Satyavrata (Śrāddhadeva)", "King Janamejaya", "King Dhruva"], answer: "B" },
       13: { question: "How did the fish appear to King Satyavrata?", options: ["As a small, humble fish requesting protection", "As a large, horned, eight million miles long fish", "As a divine bird", "As a lion"], answer: "B" },
@@ -222,7 +182,7 @@
       52: { question: "Vamana was born to these following people", options: ["Anasuya & Atri Rishi", "Aditi & Kashyapa", "Satyavati & Vyasa", "Tara & Brihaspati"], answer: "B" },
       53: { question: "Who is the grandfather of Bali Maharaj?", options: ["Prahalada", "Kapila", "Svayambhuvu Manu", "Suka Maharaj"], answer: "A" },
       54: { question: "In his fifth Incarnation, Lord Vishnu came to earth as a?", options: ["Giant Brahmin", "Vaishya form", "Kshatriya form", "Dwarf Brahmin form"], answer: "D" },
-      55: { question: "What is the meaning of Daityas?", options: ["Demons", "Asuras", "Vasuki", "Gandharvas"], answer: "A" }, 
+      55: { question: "What is the meaning of Daityas?", options: ["Demons", "Asuras", "Vasuki", "Gandharvas"], answer: "A" },
       56: { question: "Bali performed which yaga and conquered the world?", options: ["Rajasuya yaga", "Ashwamedha yaga", "Vajapeya yaga", "Viswajith yaga"], answer: "D" },
       57: { question: "Who is the father of Bali Maharaj?", options: ["Hiranyakasipu", "Angadha", "Virochana", "Tarakasura"], answer: "C" },
       58: { question: "What are the 3 steps Vamana asked Bali?", options: ["Earth, ocean, forest", "Earth, sky, ocean", "Sky, earth and one on his head", "Sky, heaven, earth"], answer: "C" },
@@ -279,220 +239,282 @@
       109: { question: "What will happen after Kalki ends Kali Yuga?", options: ["Kali Yuga will restart", "Earth will be destroyed", "Satya Yuga will begin", "Kalki will rule forever"], answer: "C" },
       1010: { question: "Who is Kalki?", options: ["A powerful king", "A prophet", "The final avatar of Vishnu", "A sage"], answer: "C" }
     };
-    function launchFireworks() {
-      for (let i = 0; i < 30; i++) {
-        const fw = document.createElement('div');
-        fw.className = 'firework';
-        fw.style.top = `${Math.random() * window.innerHeight}px`;
-        fw.style.left = `${Math.random() * window.innerWidth}px`;
-        fw.style.background = `hsl(${Math.random() * 360}, 100%, 60%)`;
-        document.body.appendChild(fw);
-        setTimeout(() => fw.remove(), 1000);
+
+    // Build QUESTION_BANK: 10 avatars × 10 questions
+    const QUESTION_BANK = {}; for (let i=1;i<=10;i++) QUESTION_BANK[i] = new Array(10).fill(null);
+    Object.keys(RAW_QUESTIONS).forEach(k=>{
+      const key = k.toString();
+      const avatarIdx = parseInt(key[0],10);
+      const qNum = parseInt(key.slice(1),10);
+      const qObj = RAW_QUESTIONS[k];
+      if (avatarIdx>=1 && avatarIdx<=10 && qNum>=1 && qNum<=10) {
+        QUESTION_BANK[avatarIdx][qNum-1] = qObj;
       }
-      winSound.play();
+    });
+
+    // State
+    let db=null, auth=null, attemptsCollection=null, winnersCollection=null;
+    let currentUserName="", currentUserMobile="", selectedAvatarIndex=null, correctStreak=0;
+    let allAttempts=[], allWinners=[]; let offlineMode=false;
+    const winSound = new Audio("https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3");
+
+    // Track correct (avatar, question) pairs for current user
+    let correctAnsweredSet = new Set();
+
+    // Firebase init (optional) with offline fallback
+    async function initializeFirebase(){
+      try{
+        const appId = window.__app_id || 'default-app-id';
+        const cfg = (()=>{ try{return JSON.parse(window.__firebase_config||'{}')}catch{return {}} })();
+        if (!cfg || !cfg.apiKey){ enableOfflineMode(); return; }
+        const app = initializeApp(cfg); db=getFirestore(app); auth=getAuth(app);
+        if (window.__initial_auth_token) await signInWithCustomToken(auth, window.__initial_auth_token); else await signInAnonymously(auth);
+        attemptsCollection = collection(db, `artifacts/${appId}/public/data/quiz_attempts`);
+        winnersCollection  = collection(db, `artifacts/${appId}/public/data/quiz_winners`);
+        onSnapshot(attemptsCollection, s=>{ allAttempts = s.docs.map(d=>({...d.data(), id:d.id})); if (document.getElementById('adminSection').classList.contains('active')) showResultsTable(); });
+        onSnapshot(winnersCollection, s=>{ allWinners  = s.docs.map(d=>({...d.data(), id:d.id})); if (document.getElementById('adminSection').classList.contains('active')) showResultsTable(); });
+      }catch(e){ console.warn('Firebase init error → offline mode', e); enableOfflineMode(); }
     }
-    function saveUserInfo() {
-      const name = document.getElementById("fullName").value.trim();
-      const mobile = document.getElementById("mobileNumber").value.trim();
-
-      if (!name || !mobile) {
-        alert("Please enter both Name and Mobile.");
-        return;
-      }
-
-      localStorage.setItem("userName", name);
-      localStorage.setItem("userMobile", mobile);
-
-      showTab('avatarTab');
+    function enableOfflineMode(){
+      offlineMode=true; document.getElementById('offlineBanner').classList.add('active');
+      try{ allAttempts=JSON.parse(localStorage.getItem('quiz_attempts')||'[]'); allWinners=JSON.parse(localStorage.getItem('quiz_winners')||'[]'); }catch{}
     }
-    function tryShowTab(id) {
-    const name = localStorage.getItem("userName");
-    const mobile = localStorage.getItem("userMobile");
-
-    if ((id === "avatarTab" || id === "quizTab" || id === "adminTab") && (!name || !mobile)) {
-      alert("Please fill in your personal details first.");
-      return;
+    async function saveAttemptDoc(payload){
+      if (!offlineMode && db && attemptsCollection){ try{ return await addDoc(attemptsCollection, payload); }catch(e){ console.warn('attempt save → offline',e);} }
+      allAttempts=[...allAttempts,{...payload,id:`local_${Date.now()}`}];
+      localStorage.setItem('quiz_attempts', JSON.stringify(allAttempts));
+    }
+    async function saveWinnerDoc(payload){
+      if (!offlineMode && db && winnersCollection){ try{ return await addDoc(winnersCollection, payload); }catch(e){ console.warn('winner save → offline',e);} }
+      allWinners=[...allWinners,{...payload,id:`local_${Date.now()}`}];
+      localStorage.setItem('quiz_winners', JSON.stringify(allWinners));
     }
 
-    if (id === "adminTab") {
-      const pass = prompt("Enter Admin Password:");
-      if (pass !== ADMIN_PASSWORD) {
-        alert("Incorrect password.");
-        return;
-      }
+    // Sections
+    window.showSection = id => { document.querySelectorAll('.section').forEach(s=>s.classList.remove('active')); document.getElementById(id)?.classList.add('active'); };
+
+    // AU mobile validation
+    function normaliseAuMobile(input){
+      const digits=input.replace(/[^\d+]/g,'');
+      const auMobileRegex=/^(?:\+?61|0)4\d{8}$/;
+      if(!auMobileRegex.test(digits.replace(/\s/g,''))) return null;
+      if(digits.startsWith('0')) return '+61'+digits.slice(1);
+      if(digits.startsWith('61')) return '+'+digits;
+      return digits;
     }
 
-    showTab(id); // ✅ move this back here
-  }
-  
-  function showTab(id) {
-    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-    const el = document.getElementById(id);
-    if (el) el.classList.add('active');
-    if (id === "adminTab") showResultsTable();
-  }
-    
-  function renderAvatarButtons() {
-    const container = document.getElementById("avatarList");
-    avatars.forEach((name, idx) => {
-      const btn = document.createElement("div");
-      btn.innerText = name;
-      btn.className = "avatar-button";
-      btn.onclick = () => {
-        selectedAvatarIndex = idx + 1;
-        document.getElementById("selectedAvatarDisplay").innerText = "Selected Avatar: " + name;
-        showTab("quizTab");
-        };
+    // Handlers
+    window.saveUserInfo = () => {
+      const name=document.getElementById('fullName').value.trim();
+      const mobileRaw=document.getElementById('mobileNumber').value.trim();
+      if(!name||!mobileRaw){ showModal('error','Incomplete Details','Please enter both your name and mobile number.',[{text:'Okay'}]); return; }
+      const normalised=normaliseAuMobile(mobileRaw);
+      if(!normalised){ showModal('error','Invalid Number','Please enter a valid Australian mobile (04XXXXXXXX or +614XXXXXXXX).',[{text:'Okay'}]); return; }
+      currentUserName=name; currentUserMobile=normalised;
+      showSection('avatarSection');
+    };
+
+    window.renderAvatarButtons = () => {
+      const container=document.getElementById('avatarList'); container.innerHTML='';
+      AVATARS.forEach((a,idx)=>{
+        const card=document.createElement('div');
+        card.className='p-4 bg-white rounded-xl shadow-md cursor-pointer text-center hover:shadow-lg hover:bg-yellow-50 hover:-translate-y-1 transition-all';
+        card.onclick=()=>selectAvatar(idx);
+        card.innerHTML=`<i class="fa-solid fa-${a.icon} text-4xl text-orange-500 mb-2"></i><p class="font-semibold text-gray-700">${a.name}</p>`;
+        container.appendChild(card);
+      });
+    };
+
+    function renderAvatarModal(){
+      const container=document.getElementById('avatarModalList'); container.innerHTML='';
+      AVATARS.forEach((a,idx)=>{
+        const btn=document.createElement('button');
+        btn.className='p-3 bg-white border rounded-xl shadow-sm hover:shadow-md hover:bg-yellow-50 transition text-center';
+        btn.innerHTML=`<i class="fa-solid fa-${a.icon} text-2xl text-orange-500 mb-1"></i><div class="font-semibold text-gray-700">${a.name}</div>`;
+        btn.onclick=()=>{ selectAvatar(idx); closeAvatarModal(); };
         container.appendChild(btn);
       });
     }
 
-    function showQuestion() {
-      if (!selectedAvatarIndex) {
-        alert("Please select an avatar first!");
-        return;
-      }
-      const qn = parseInt(document.getElementById("questionNumberInput").value);
-      const qid = parseInt(`${selectedAvatarIndex}${qn}`);
-      const data = questions[qid];
-      const area = document.getElementById("questionArea");
-      if (!data) {
-        area.innerHTML = "❌ Question not available.";
-        return;
-      }
-      let html = `<p><b>Q${qid}: ${data.question}</b></p>`;
-      data.options.forEach((opt, idx) => {
-        const label = String.fromCharCode(65 + idx);
-        html += `<button onclick="checkAnswer('${label}', '${data.answer}', ${qid})">${label}) ${opt}</button><br>`;
-      });
-      area.innerHTML = html;
-    }
-
-    function checkAnswer(userAns, correctAns, qid) {
-      const isCorrect = userAns === correctAns;
-      const result = {
-        name: document.getElementById("fullName").value,
-        mobile: document.getElementById("mobileNumber").value,
-        avatar: avatars[selectedAvatarIndex - 1],
-        questionId: qid,
-        selectedAnswer: userAns,
-        correct: isCorrect,
-        time: new Date().toLocaleString()
-      };
-      resultDatabase.push(result);
-      const stored = JSON.parse(localStorage.getItem("quizResults") || "[]");
-      stored.push(result);
-      localStorage.setItem("quizResults", JSON.stringify(stored));
-
-      if(isCorrect) {
-        correctStreak++;
-        alert("✅ Good Answer! Spin the wheel for next question.");
-        document.getElementById("questionArea").innerHTML = "";
-        document.getElementById("questionNumberInput").value = "";
-        showTab("avatarTab");
-        if (correctStreak >= 3) {
-           alert("🪷 Hare Krishna! We won the game. Meet our youth member for your gift.");
-          launchFireworks();
-          const winner = { name, mobile, time: new Date().toLocaleString() };
-          winnersList.push(winner);
-          localStorage.setItem("quizWinners", JSON.stringify(winnersList));
-          lockInterface("🪷 Hare Krishna! We won the game. Meet our youth member for your gift.");
-          launchFireworks();
-          setTimeout (() => {
-            alert("🔁 The quiz will now restart.");
-            correctStreak = 0;
-            restartGame();
-            }, 3000);
-        }
-      } else {
-        correctStreak = 0;
-        alert("❌ Hare Krishna! Good Try! But not correct! Get a book to read.");
-        lockInterface();
-      }
-    }
-
-    function lockInterface(message = "❌ You answered incorrectly. Please go to the book table and study the Vedic texts.") {
-      document.body.innerHTML = `
-        <div class="main-container">
-          <h2 style="color:red; text-align:center;">🚫 Quiz Locked!</h2>
-          <p style="text-align:center;">${message}</p>
-          <button onclick="restartGame()" style="display:block; margin:20px auto;">🔁 Restart Quiz</button>
-        </div>
-      `;
-      localStorage.removeItem("userName");
-      localStorage.removeItem("userMobile");
-      localStorage.removeItem("quizResults");
-    }
-
-    function restartGame() {
-      correctStreak = 0;
-      resultDatabase = [];
-      selectedAvatarIndex = 0;
-      document.getElementById("questionArea").innerHTML = "";
-      document.getElementById("questionNumberInput").value = "";
-      showTab("userTab");
-    }
-    
-    function downloadResults() {
-      if (resultDatabase.length === 0) {
-        alert("No results to download yet!");
-        return;
-      }
-
-      const headers = ["Name", "Mobile", "Avatar", "Question ID", "Selected Answer", "Correct", "Time"];
-      const rows = resultDatabase.map(r => [
-        r.name, r.mobile, r.avatar, r.questionId, r.selectedAnswer, r.correct ? "Yes" : "No", r.time
-      ]);
-
-      const csvContent = [headers, ...rows]
-        .map(e => e.map(v => `"${v}"`).join(","))
-        .join("\n");
-
-      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = "quiz_results.csv";
-      link.click();
-    }
-    
-    function showResultsTable() {
-      const container = document.getElementById("resultTableContainer");
-      if (resultDatabase.length === 0) {
-        container.innerHTML = "<p>No results yet.</p>";
-        return;
-      }
-
-      let html = "<table border='1'><tr><th>Name</th><th>Mobile</th><th>Avatar</th><th>QID</th><th>Answer</th><th>Correct</th><th>Time</th></tr>";
-      resultDatabase.forEach(r => {
-        html += `<tr>
-          <td>${r.name}</td>
-          <td>${r.mobile}</td>
-          <td>${r.avatar}</td>
-          <td>${r.questionId}</td>
-          <td>${r.selectedAnswer}</td>
-          <td>${r.correct ? "Yes" : "No"}</td>
-          <td>${r.time}</td>
-        </tr>`;
-      });
-      html += "</table>";
-      const winners = JSON.parse(localStorage.getItem("quizWinners") || "[]");
-      if (winners.length > 0) {
-        html += "<h3 style='margin-top: 20px;'>🎉 Winners List</h3>";
-        html += "<table border='1'><tr><th>Name</th><th>Mobile</th><th>Time</th></tr>";
-        winners.forEach(w => {
-          html += `<tr><td>${w.name}</td><td>${w.mobile}</td><td>${w.time}</td></tr>`;
-        });
-        html += "</table>";
-      }
-      container.innerHTML = html;
-    }
-    window.onload = function () {
-      renderAvatarButtons();
-      document.getElementById("fullName").value = localStorage.getItem("userName") || "";
-      document.getElementById("mobileNumber").value = localStorage.getItem("userMobile") || "";
-      resultDatabase = JSON.parse(localStorage.getItem("quizResults") || "[]");
-      winnersList = JSON.parse(localStorage.getItem("quizWinners") || "[]");
+    window.selectAvatar = idx => {
+      selectedAvatarIndex = idx + 1;
+      document.getElementById('selectedAvatarDisplay').innerText = `Avatar: ${AVATARS[idx].name}`;
+      showSection('quizSection');
     };
+
+    function getQuestion(avatarIdx,qNum){
+      const arr=QUESTION_BANK[avatarIdx]||[];
+      return arr[qNum-1]||null;
+    }
+
+    window.showQuestion = () => {
+      const qn=parseInt(document.getElementById('questionNumberInput').value,10);
+      if(isNaN(qn)||qn<1||qn>10){ showModal('error','Invalid Question','Please enter a number between 1 and 10.',[{text:'Okay'}]); return; }
+      if(!selectedAvatarIndex){ showModal('error','No Avatar','Please select an avatar first.',[{text:'Choose Avatar', class:'bg-orange-500 hover:bg-orange-600', callback:()=>{ showSection('avatarSection'); }}]); return; }
+
+      // Prevent repeating a correct (avatar, question)
+      const key = `${selectedAvatarIndex}-${qn}`;
+      if (correctAnsweredSet.has(key)) {
+        showModal('error','Already Answered','You have already answered this question correctly for this avatar. Please choose a different question number.',[{text:'Okay'}]);
+        return;
+      }
+
+      const data=getQuestion(selectedAvatarIndex, qn);
+      const area=document.getElementById('questionArea');
+      if(!data){ area.innerHTML=`<p class="text-center text-red-500 font-semibold">❌ Question not set for this avatar/number yet.</p>`; return; }
+
+      let html=`<p class="text-lg font-semibold text-center mb-4">${data.question}</p><div class="space-y-3">`;
+      data.options.forEach((opt,i)=>{
+        const label=String.fromCharCode(65+i);
+        html+=`<button id="ans-${label}" onclick="checkAnswer(this,'${label}','${data.answer}',${selectedAvatarIndex},${qn})" class="w-full text-left p-3 bg-white border-2 border-orange-200 rounded-lg hover:bg-orange-100 hover:border-orange-400 transition-all">${label}) ${opt}</button>`;
+      });
+      html+=`</div>`;
+      area.innerHTML=html;
+    };
+
+    window.checkAnswer = async (btn, userAns, correctAns, avatarIdx, qNum) => {
+      document.querySelectorAll('#questionArea button').forEach(b=>b.disabled=true);
+      const isCorrect = userAns===correctAns;
+
+      // Visual feedback WITHOUT revealing the correct answer on wrong attempts
+      if(isCorrect){
+        btn.classList.add('!bg-green-500','text-white','!border-green-700','font-bold'); btn.innerHTML+=' <i class="fa-solid fa-check"></i>';
+      } else {
+        btn.classList.add('!bg-red-500','text-white','!border-red-700','font-bold'); btn.innerHTML+=' <i class="fa-solid fa-xmark"></i>';
+      }
+
+      try{
+        await saveAttemptDoc({
+          name: currentUserName, mobile: currentUserMobile,
+          avatar: AVATARS[avatarIdx-1]?.name || '', avatarIndex: avatarIdx,
+          questionNumber: qNum, selectedAnswer: userAns, correct: isCorrect,
+          timestamp: offlineMode ? { seconds: Math.floor(Date.now()/1000) } : serverTimestamp()
+        });
+      }catch(e){ console.error('Save error', e); }
+
+      setTimeout(()=>{
+        if(isCorrect){
+          // Mark this (avatar, question) as correctly answered
+          correctAnsweredSet.add(`${avatarIdx}-${qNum}`);
+          correctStreak++; updateStreakTracker(correctStreak);
+          resetQuestionUI();
+          if(correctStreak>=3){ handleWin(); }
+          else { openAvatarModal(); } // prompt to (re)select avatar for next question
+        } else {
+          correctStreak=0; updateStreakTracker(0);
+          showModal('loss','Not quite…','Try another question number.',[{text:'Okay', class:'bg-orange-500 hover:bg-orange-600', callback:()=>{ resetQuestionUI(); }}]);
+        }
+      },900);
+    };
+
+    function resetQuestionUI(){ document.getElementById('questionArea').innerHTML=''; document.getElementById('questionNumberInput').value=''; }
+
+    async function handleWin(){
+      try{ await saveWinnerDoc({name:currentUserName,mobile:currentUserMobile,timestamp:offlineMode?{seconds:Math.floor(Date.now()/1000)}:serverTimestamp()}); }catch{}
+      launchFireworks(); try{ await winSound.play(); }catch{}
+      showModal('win','🪷 You Won! 🪷','Hare Krishna! Show this to a youth member for your prize.',[
+        { text:'<i class="fa-brands fa-instagram"></i> Follow Us', isLink:true, href:'https://www.instagram.com/iskcon_ns_youth/', class:'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600' },
+        { text:'Play Again', class:'bg-gray-500 hover:bg-gray-600', callback:restartGame }
+      ]);
+    }
+
+    function updateStreakTracker(streak){
+      document.querySelectorAll('#streak-tracker i').forEach((icon,i)=>{
+        if(i<streak) icon.classList.replace('text-gray-300','text-yellow-400'); else icon.classList.replace('text-yellow-400','text-gray-300');
+      });
+    }
+    function restartGame(){
+      correctStreak=0; selectedAvatarIndex=null; currentUserName=""; currentUserMobile="";
+      correctAnsweredSet = new Set(); // Reset correct answers on restart
+      document.getElementById('selectedAvatarDisplay').innerText='';
+      document.getElementById('fullName').value=''; document.getElementById('mobileNumber').value='';
+      resetQuestionUI(); showSection('userSection');
+    }
+
+    // Admin
+    window.showAdminLogin=()=>{
+      showModal('prompt','Admin Access','Enter the admin password.',[
+        { text:'Login', class:'bg-blue-500 hover:bg-blue-600', callback:pwd=>{
+          if(pwd===ADMIN_PASSWORD){ showResultsTable(); showSection('adminSection'); }
+          else{ showModal('error','Access Denied','Incorrect password.',[{text:'Okay'}]); }
+        }}
+      ]);
+    };
+    window.downloadResults=()=>{
+      const hasData=(allAttempts?.length||0)+(allWinners?.length||0)>0;
+      if(!hasData){ showModal('error','No Data','No quiz results to download yet.',[{text:'Okay'}]); return; }
+      const attemptHeaders=["Name","Mobile","Avatar","AvatarIdx","Q#","Correct","Time"];
+      const attemptRows=(allAttempts||[]).map(r=>{
+        const time=r.timestamp? new Date((r.timestamp.seconds||Math.floor(Date.now()/1000))*1000).toLocaleString(): 'N/A';
+        return [r.name,r.mobile,r.avatar,r.avatarIndex||'',r.questionNumber||'',r.correct?'Yes':'No',time];
+      });
+      const winnerHeaders=["Name","Mobile","Time"];
+      const winnerRows=(allWinners||[]).map(w=>{
+        const time=w.timestamp? new Date((w.timestamp.seconds||Math.floor(Date.now()/1000))*1000).toLocaleString(): 'N/A';
+        return [w.name,w.mobile,time];
+      });
+      const csvAttempts=[attemptHeaders,...attemptRows].map(r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(",")).join("\n");
+      const csvWinners=[winnerHeaders,...winnerRows].map(r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(",")).join("\n");
+      const final="Attempts\n"+csvAttempts+"\n\nWinners\n"+csvWinners;
+      const blob=new Blob([final],{type:'text/csv'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='quiz_results.csv'; a.click();
+    };
+    function showResultsTable(){
+      const c=document.getElementById('resultTableContainer'); let html="";
+      if(allAttempts && allAttempts.length){
+        html+="<h3 class='text-xl font-bold mb-2 text-gray-700'>Quiz Attempts</h3><table class='w-full border-collapse'><thead class='bg-gray-200'><tr><th class='p-2 border'>Name</th><th class='p-2 border'>Mobile</th><th class='p-2 border'>Avatar</th><th class='p-2 border'>AvatarIdx</th><th class='p-2 border'>Q#</th><th class='p-2 border'>Correct</th></tr></thead><tbody>";
+        [...allAttempts].sort((a,b)=>(b.timestamp?.seconds||0)-(a.timestamp?.seconds||0)).forEach(r=>{
+          html+=`<tr class='border-b'><td class='p-2 border'>${r.name||''}</td><td class='p-2 border'>${r.mobile||''}</td><td class='p-2 border'>${r.avatar||''}</td><td class='p-2 border'>${r.avatarIndex||''}</td><td class='p-2 border'>${r.questionNumber||''}</td><td class='p-2 border ${r.correct?'text-green-600':'text-red-600'}'>${r.correct?'Yes':'No'}</td></tr>`;
+        });
+        html+="</tbody></table>";
+      }
+      if(allWinners && allWinners.length){
+        html+="<h3 class='text-xl font-bold mt-6 mb-2 text-gray-700'>🎉 Winners List</h3><table class='w-full border-collapse'><thead class='bg-gray-200'><tr><th class='p-2 border'>Name</th><th class='p-2 border'>Mobile</th><th class='p-2 border'>Time</th></tr></thead><tbody>";
+        [...allWinners].sort((a,b)=>(b.timestamp?.seconds||0)-(a.timestamp?.seconds||0)).forEach(w=>{
+          const time=w.timestamp? new Date((w.timestamp.seconds||Math.floor(Date.now()/1000))*1000).toLocaleString(): 'N/A';
+          html+=`<tr class='border-b'><td class='p-2 border'>${w.name||''}</td><td class='p-2 border'>${w.mobile||''}</td><td class='p-2 border'>${time}</td></tr>`;
+        });
+        html+="</tbody></table>";
+      }
+      c.innerHTML = html || "<p>No results yet. Data will appear here.</p>";
+    }
+
+    // Modal helpers
+    window.showModal=(type,title,message,buttons=[])=>{
+      const m=document.getElementById('customModal');
+      document.getElementById('modalIcon').innerHTML={success:'<i class="fa-solid fa-circle-check text-green-500"></i>',error:'<i class="fa-solid fa-circle-xmark text-red-500"></i>',win:'<i class="fa-solid fa-trophy text-yellow-500"></i>',loss:'<i class="fa-solid fa-heart-crack text-gray-500"></i>',prompt:'<i class="fa-solid fa-key text-blue-500"></i>'}[type]||'';
+      document.getElementById('modalTitle').innerText=title; document.getElementById('modalMessage').innerText=message;
+      const actions=document.getElementById('modalActions'); actions.innerHTML='';
+      const inputContainer=document.getElementById('modalInputContainer'); inputContainer.style.display=type==='prompt'?'block':'none';
+      if(type==='prompt') document.getElementById('modalInput').value='';
+      (buttons||[]).forEach(bi=>{
+        const el=bi.isLink?Object.assign(document.createElement('a'),{href:bi.href,target:'_blank',rel:'noopener noreferrer'}):document.createElement('button');
+        el.innerHTML=bi.text; el.className=`flex-1 text-white font-bold py-2 px-4 rounded-lg transition-all shadow-md ${bi.class||'bg-gray-500 hover:bg-gray-600'}`;
+        if(!bi.isLink) el.onclick=()=>{ if(type==='prompt') bi.callback?.(document.getElementById('modalInput').value); else bi.callback?.(); m.classList.remove('active'); };
+        actions.append(el);
+      });
+      m.classList.add('active');
+    };
+    function openAvatarModal(){ document.getElementById('avatarModal').classList.add('active'); }
+    function closeAvatarModal(){ document.getElementById('avatarModal').classList.remove('active'); }
+    window.closeAvatarModal = closeAvatarModal;
+
+    function showToast(msg){
+      const t=document.createElement('div');
+      t.className='fixed bottom-4 left-1/2 -translate-x-1/2 bg-black text-white text-sm px-3 py-2 rounded-lg shadow-lg z-50';
+      t.innerText=msg; document.body.appendChild(t); setTimeout(()=>t.remove(), 2200);
+    }
+    function launchFireworks(){
+      const c=document.getElementById('app-container'); const rect=c.getBoundingClientRect();
+      for(let i=0;i<36;i++){
+        const fw=document.createElement('div'); fw.className='firework';
+        fw.style.top = `${Math.random()*rect.height}px`; fw.style.left = `${Math.random()*rect.width}px`;
+        fw.style.background = `hsl(${Math.random()*360},100%,60%)`; fw.style.zIndex=50;
+        c.appendChild(fw); setTimeout(()=>fw.remove(),1000);
+      }
+    }
+
+    // Bootstrap
+    window.onload=()=>{ renderAvatarButtons(); renderAvatarModal(); initializeFirebase(); };
   </script>
 </body>
 </html>

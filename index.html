@@ -80,12 +80,28 @@
       <!-- Admin -->
       <div id="adminSection" class="section">
         <h2 class="text-3xl font-semibold text-center text-gray-800 mb-4">📋 Admin Panel</h2>
-        <p class="text-sm text-gray-600 mb-3">This shows only the results recorded on <em>this device</em>. The full record lives in <strong>Netlify → Forms → Submissions</strong>.</p>
-        <button onclick="downloadResults()" class="w-full bg-blue-500 text-white font-bold py-3 rounded-lg hover:bg-blue-600 shadow-lg mb-4">⬇️ Download Local Results CSV</button>
+        <button onclick="downloadResults()" class="w-full bg-blue-500 text-white font-bold py-3 rounded-lg hover:bg-blue-600 shadow-lg mb-4">⬇️ Download Results CSV</button>
         <div id="resultTableContainer" class="text-sm overflow-x-auto"></div>
       </div>
     </main>
   </div>
+
+  <!-- Hidden Netlify forms (must exist at build time) -->
+  <form name="attempts" netlify hidden>
+    <input type="text" name="name">
+    <input type="text" name="mobile">
+    <input type="text" name="avatar">
+    <input type="number" name="avatarIndex">
+    <input type="number" name="questionNumber">
+    <input type="text" name="selectedAnswer">
+    <input type="text" name="correct">
+    <input type="text" name="timestamp">
+  </form>
+  <form name="winners" netlify hidden>
+    <input type="text" name="name">
+    <input type="text" name="mobile">
+    <input type="text" name="timestamp">
+  </form>
 
   <!-- Generic modal -->
   <div id="customModal" class="modal-backdrop">
@@ -112,28 +128,8 @@
     </div>
   </div>
 
-  <!-- Hidden Netlify Forms (parsed at deploy time) -->
-  <form name="attempts" netlify netlify-honeypot="bot-field" hidden>
-    <input type="text"   name="name">
-    <input type="text"   name="mobile">
-    <input type="text"   name="avatar">
-    <input type="number" name="avatarIndex">
-    <input type="number" name="questionNumber">
-    <input type="text"   name="selectedAnswer">
-    <input type="text"   name="correct">
-    <input type="text"   name="timestamp">
-    <input type="text"   name="bot-field">
-  </form>
-
-  <form name="winners" netlify netlify-honeypot="bot-field" hidden>
-    <input type="text"   name="name">
-    <input type="text"   name="mobile">
-    <input type="text"   name="timestamp">
-    <input type="text"   name="bot-field">
-  </form>
-
+  <!-- No module type here (to avoid scope/import issues) -->
   <script>
-    // No Firebase. We save to Netlify Forms instead.
     const ADMIN_PASSWORD = "gopinath123";
     const AVATARS = [
       { name: "Matsya", icon: "fish" },
@@ -149,108 +145,109 @@
     ];
 
     const RAW_QUESTIONS = {
-      11: { question: "What is the primary purpose of Lord Vishnu’s Matsya (fish) incarnation?", options: ["To kill demons on land", "To save the Vedas and protect the righteous", "To create new worlds", "To teach humans how to fish"], answer: "B" },
-      12: { question: "Who was the great king that received protection from the Matsya incarnation?", options: ["King Harishchandra", "King Satyavrata (Śrāddhadeva)", "King Janamejaya", "King Dhruva"], answer: "B" },
-      13: { question: "How did the fish appear to King Satyavrata?", options: ["As a small, humble fish requesting protection", "As a large, horned, eight million miles long fish", "As a divine bird", "As a lion"], answer: "B" },
-      14: { question: "Why did Lord Vishnu first assume the Matsya form during the end of Brahma’s day?", options: ["To create the universe anew", "To save the Vedic scriptures from the demon Hayagrīva", "To teach humans to fish", "To establish the monarchy"], answer: "B" },
-      15: { question: "What instructions did Lord Vishnu give to King Satyavrata regarding the boat?", options: ["To build a boat on land and wait for the flood to end", "To load herbs and seeds on the boat and sail with the ṛṣis during the flood", "To fight the water with weapons kept in the boat", "To stay on land and observe the flood from afar"], answer: "B" },
-      16: { question: "What item was used to attach the boat to the fish’s horn?", options: ["A chain of gold", "A serpent named Vāsuki", "A rope of flowers", "A piece of wood"], answer: "B" },
-      17: { question: "According to the story, what did the fish tell King Satyavrata about the waters?", options: ["That the waters would never recede", "That the waters would trap the boat forever", "That the waters would eventually inundate all worlds and then subside", "That the waters would turn into fire"], answer: "C" },
-      18: { question: "In the Matsya avatar story, who was the demon that stole the Vedic knowledge?", options: ["Rāhu", "Hayagrīva", "Kansa", "Hiranyakashipu"], answer: "B" },
-      19: { question: "What did Lord Vishnu reveal to King Satyavrata during his journey in the boat?", options: ["The secret of immortality", "The Absolute Truth and spiritual science including Vedic knowledge", "The art of war", "The location of hidden treasure"], answer: "B" },
-      110: { question: "What is the significance of hearing the story of Matsya avatar according to the text?", options: ["It guarantees material wealth", "It delivers one from the reactions of sinful life and helps attain liberation", "It provides a way to become a king", "It explains how to fish effectively"], answer: "B" },
-      21: { question: "What animal form did Lord Vishnu take in the Kurma avatar?", options: ["Fish", "Boar", "Turtle", "Lion"], answer: "C" },
-      22: { question: "What was the main event during which Lord Vishnu took the Kurma avatar?", options: ["Battle of Kurukshetra", "Samudra Manthan (Churning of the ocean)", "Rama’s exile", "Building of the bridge to Lanka"], answer: "B" },
-      23: { question: "What mountain was used as the churning rod?", options: ["Mount Meru", "Mount Kailash", "Mount Mandara", "Mount Gandhamadana"], answer: "C" },
-      24: { question: "Which snake was used as the rope to churn the ocean?", options: ["Shesha", "Kaliya", "Vasuki", "Ananta"], answer: "C" },
-      25: { question: "Why did Lord Vishnu take the form of a turtle?", options: ["To defeat the demons", "To carry the Earth", "To support the mountain during the churning", "To save Lakshmi"], answer: "C" },
-      26: { question: "Who were the two groups involved in the churning of the ocean?", options: ["Gandharvas and Rakshasas", "Devas and Asuras", "Humans and Demons", "Saints and Kings"], answer: "B" },
-      27: { question: "What were the Devas and Asuras trying to get from the ocean?", options: ["Gold", "Lakshmi", "Amrita (nector of immortality)", "A divine weapon"], answer: "C" },
-      28: { question: "In which Purana is the Kurma avatar story described in detail?", options: ["Shiva Purana", "Bhagavata Purana", "Agni Purana", "Linga Purana"], answer: "B" },
-      29: { question: "What was the result of the churning of the ocean besides amrita?", options: ["Only gold appeared", "Many divine beings and items appeared", "Lord Shiva appeared", "The ocean dried up"], answer: "B" },
-      210: { question: "What does the Kurma avatar teach us spiritually?", options: ["To seek wealth and power", "To meditate alone in the forest", "To stay steady and support others in tough times", "To destroy enemies by any means"], answer: "C" },
-      31: { question: "Who does Lord Varaha rescue from the primordial waters?", options: ["Goddess Lakshmi", "Goddess Sarasvati", "Goddess Bhumi (Earth)", "Goddess Ganga"], answer: "C" },
-      32: { question: "Which demon is slain by Lord Varaha during this mission?", options: ["Ravana", "Hiranyaksha", "Kamsa", "Vritra"], answer: "B" },
-      33: { question: "From where is the first small boar incarnation of Varaha said to have emerged?", options: ["Brahma’s friend's mouth", "Shiva's third eye", "Brahma’s nostril", "Vishnu’s heart"], answer: "C" },
-      34: { question: "During which Puranic devastation did the “white boar” incarnation appear?", options: ["Pralayic", "Svayambhuva", "Chakshusha", "Maha Pralaya"], answer: "B" },
-      35: { question: "What is Varaha’s form described as in anthropomorphic iconography?", options: ["Fully human", "Boar body, human head", "Boar head, human body", "Human head, deer body"], answer: "C" },
-      36: { question: "What festival commemorates Lord Varaha’s appearance?", options: ["Holi", "Varaha Dvadasi", "Diwali", "Janmashtami"], answer: "B" },
-      37: { question: "In Vedic cosmology, what ocean did Earth sink into before being rescued?", options: ["Yamuna Ocean", "Garbhodaka Ocean", "Manasa Ocean", "Mandara Ocean"], answer: "B" },
-      38: { question: "Who prayed to Lord Shiva for mercy after conceiving the demons Hiranyaksha and Hiranyakashipu?", options: ["Aditi", "Diti", "Sarasvati", "Bhumi"], answer: "B" },
-      39: { question: "Which avatar number is Varaha in the Dashavatara list?", options: ["First", "Second", "Third", "Fourth"], answer: "C" },
-      310: { question: "What does Lord Varaha symbolically represent?", options: ["Creation", "Destruction", "Preservation", "Sacrifice and restoration of cosmic order"], answer: "D" },
-      41: { question: "In which Purana is Lord Narasimha’s avatar prominently described?", options: ["Garuda Purana", "Skanda Purana", "Vishnu Purana", "Agni Purana"], answer: "C" },
-      42: { question: "What form did Lord Narasimha take?", options: ["Half-man, half-elephant", "Half-lion, half-man", "Full human form", "Half-boar, half-man"], answer: "B" },
-      43: { question: "Who was the demon king killed by Narasimha?", options: ["Ravana", "Kamsa", "Hiranyakashipu", "Duryodhana"], answer: "C" },
-      44: { question: "Who was the devotee son of Hiranyakashipu?", options: ["Vibhishana", "Arjuna", "Prahlāda", "Bharata"], answer: "C" },
-      45: { question: "From where did Lord Narasimha appear?", options: ["From the sky", "From the ocean", "From a pillar", "From a temple"], answer: "C" },
-      46: { question: "Why did Lord Vishnu take the Narasimha form?", options: ["To stop a war", "To fulfil Brahma’s boon conditions", "To protect the devas from Ravana", "To teach meditation"], answer: "B" },
-      47: { question: "At what time did Narasimha kill Hiranyakashipu?", options: ["Morning", "Night", "Dusk (twilight)", "Noon"], answer: "C" },
-      48: { question: "On what was Hiranyakashipu placed when he was killed?", options: ["In the sky", "On the ground", "On Narasimha’s lap", "On a throne"], answer: "C" },
-      49: { question: "What did Narasimha use to kill Hiranyakashipu?", options: ["Chakra", "Sword", "Nails", "Mace"], answer: "C" },
-      410: { question: "What does the form of Narasimha symbolise?", options: ["The strength of humans", "The victory of fear", "Protection of devotees and destruction of evil", "The end of all avatars"], answer: "C" },
-      51: { question: "Vamana incarnation is also called as", options: ["Trivikrama / Upendra", "Chathurbahu", "Dwimukha", "Heramba"], answer: "A" },
-      52: { question: "Vamana was born to these following people", options: ["Anasuya & Atri Rishi", "Aditi & Kashyapa", "Satyavati & Vyasa", "Tara & Brihaspati"], answer: "B" },
-      53: { question: "Who is the grandfather of Bali Maharaj?", options: ["Prahalada", "Kapila", "Svayambhuvu Manu", "Suka Maharaj"], answer: "A" },
-      54: { question: "In his fifth Incarnation, Lord Vishnu came to earth as a?", options: ["Giant Brahmin", "Vaishya form", "Kshatriya form", "Dwarf Brahmin form"], answer: "D" },
-      55: { question: "What is the meaning of Daityas?", options: ["Demons", "Asuras", "Vasuki", "Gandharvas"], answer: "A" },
-      56: { question: "Bali performed which yaga and conquered the world?", options: ["Rajasuya yaga", "Ashwamedha yaga", "Vajapeya yaga", "Viswajith yaga"], answer: "D" },
-      57: { question: "Who is the father of Bali Maharaj?", options: ["Hiranyakasipu", "Angadha", "Virochana", "Tarakasura"], answer: "C" },
-      58: { question: "What are the 3 steps Vamana asked Bali?", options: ["Earth, ocean, forest", "Earth, sky, ocean", "Sky, earth and one on his head", "Sky, heaven, earth"], answer: "C" },
-      59: { question: "What is Bali Chakravarthy’s wife name?", options: ["Anuhrada", "Vindhyavali", "Simhika", "Samhrada"], answer: "B" },
-      510: { question: "After Vamana revealed his true identity as Lord Vishnu, He blessed Bali with which Loka?", options: ["Jana Loka", "Tapo Loka", "Pathala Loka", "Mahar Loka"], answer: "C" },
-      61: { question: "Who was the sage father of Parashurama, known for his strict discipline and tapasya?", options: ["Jamadagni", "Atri", "Kashyapa", "Vasishtha"], answer: "A" },
-      62: { question: "What weapon did Lord Shiva gift to Parashurama after testing his devotion?", options: ["Trishula", "Parashu (Battle Axe)", "Vajra", "Sudarshan Chakra"], answer: "B" },
-      63: { question: "Which powerful king with a thousand arms was slain by Parashurama?", options: ["Duryodhana", "Bali", "Kartavirya Arjuna", "Ravana"], answer: "C" },
-      64: { question: "Which river did Parashurama invite to flow through the land he reclaimed from the sea?", options: ["Saraswati", "Yamuna", "Narmada", "Ganga"], answer: "D" },
-      65: { question: "After being humbled by Lord Rama, what did Parashurama give up?", options: ["His bow", "His renunciation", "His Kshatriya pride", "His meditative powers"], answer: "C" },
-      66: { question: "Which present-day Indian state is said to have been created by Parashurama?", options: ["Gujarat", "Kerala", "Odisha", "Maharashtra"], answer: "B" },
-      67: { question: "Which avatar of Vishnu broke Shiva’s bow and humbled Parashurama?", options: ["Rama", "Krishna", "Vamana", "Narasimha"], answer: "A" },
-      68: { question: "What was the name of the divine cow that Jamadagni possessed?", options: ["Kamadhenu", "Surabhi", "Nandini", "Shabala"], answer: "A" },
-      69: { question: "Where is Parashurama believed to be meditating, waiting for Kalki?", options: ["Gandhamadana", "Mahendragiri", "Kailash", "Vindhyas"], answer: "B" },
-      610: { question: "Whom did Parashurama train in the use of divine weapons?", options: ["Arjuna", "Karna", "Bhishma", "Both B and C"], answer: "D" },
-      71: { question: "Lakshmana is considered to be the incarnation of whom?", options: ["Lord Vishnu", "Lord Shiva", "Lord Brahma", "Sheshnag"], answer: "D" },
-      72: { question: "What was the name of the forest where Lord Rama, Lakshmana and Goddess Sita stayed during exile?", options: ["Aranya", "Aranyak", "Dandakaranya", "Karanya"], answer: "C" },
-      73: { question: "Ravana was a devotee of who among the following God?", options: ["Vishnu", "Brahma", "Shiva", "None of the above"], answer: "C" },
-      74: { question: "What was the name of a bow that was used by Lord Rama in Goddess Sita swayamvar to marry her?", options: ["Pinaka", "Pindaka", "Anandaka", "Rulapand"], answer: "A" },
-      75: { question: "Who is the main antagonist in the Ramayana?", options: ["Ravana", "Kumbhakarna", "Indrajit", "Maricha"], answer: "A" },
-      76: { question: "What is the name of Sita’s sister?", options: ["Nikasha", "Mandavi", "Surpanakha", "Urmila"], answer: "D" },
-      77: { question: "What is the name of Ravan’s Mother?", options: ["Nikasha", "Kaikesi", "Kausalya", "Surpanakha"], answer: "B" },
-      78: { question: "Which bird helps Rama in finding Sita?", options: ["Jatayu", "Garuda", "Suparna", "All of the above"], answer: "A" },
-      79: { question: "Who is Rama’s faithful devotee who builds a bridge to Lanka?", options: ["Nala", "Vali", "Sugriva", "None of the above"], answer: "A" },
-      710: { question: "Who is the son of Ravana?", options: ["Kumbhakarna", "Indrajit", "Vibhishana", "None of the above"], answer: "B" },
-      81: { question: "Where was Lord Kṛṣṇa born?", options: ["Gokula", "Ayodhyā", "Mathurā", "Dvārakā"], answer: "C" },
-      82: { question: "Who carried baby Kṛṣṇa across the Yamunā River to Gokula?", options: ["Kaṁsa", "Mother Devakī", "Vasudeva", "Nanda Mahārāja"], answer: "C" },
-      83: { question: "Who were the arjuna trees that Kṛṣṇa liberated?", options: ["Nalakūvara and Maṇigrīva", "Jaya and Vijaya", "Śukadeva and Vyāsa", "Śiva and Pārvatī"], answer: "A" },
-      84: { question: "Why were the sons of Kuvera cursed to become trees?", options: ["They stole Kṛṣṇa’s flute", "They were intoxicated and disrespected Nārada Muni", "They refused to worship Brahmā", "They hurt a cow"], answer: "B" },
-      85: { question: "What happened when Mother Yaśodā tied Kṛṣṇa to a mortar?", options: ["He cried all day", "He pulled it and broke the twin arjuna trees", "He ran away to the forest", "He chanted mantras"], answer: "B" },
-      86: { question: "What lesson does Pūtanā’s liberation teach us?", options: ["Demons go to hell", "Only saints can approach God", "Even false service to Kṛṣṇa, if done in contact with Him, gives liberation", "Poison cannot harm God"], answer: "C" },
-      87: { question: "What is the main purpose of reading the Kṛṣṇa Book?", options: ["To improve memory", "To develop love and devotion for Kṛṣṇa", "To learn Sanskrit", "To memorise stories"], answer: "B" },
-      88: { question: "Which demon came as a whirlwind to kidnap Kṛṣṇa?", options: ["Aghāsura", "Tṛṇāvarta", "Keśī", "Dhenukāsura"], answer: "B" },
-      89: { question: "How did Aghāsura try to kill Kṛṣṇa and His friends?", options: ["By swallowing them like a giant snake", "By drowning them in the Yamunā", "By setting fire", "By flying them away"], answer: "A" },
-      810: { question: "Who kidnapped the cowherd boys and calves to test Kṛṣṇa?", options: ["Śiva", "Brahmā", "Indra", "Śukadeva"], answer: "B" },
-      91: { question: "In which Purana is Buddha’s avatar mentioned?", options: ["Shiva Purana", "Vishnu Purana", "Bhāgavatam", "Garuda Purana"], answer: "C" },
-      92: { question: "In which Canto is Buddha Avatar described?", options: ["Ten", "Five", "One", "Three"], answer: "C" },
-      93: { question: "What form did Lord Buddha take to appear in this world?", options: ["Boar", "Human", "Fish", "Lion"], answer: "B" },
-      94: { question: "Which Yuga did Buddha appear in?", options: ["Satya", "Tretā", "Kali", "Dvāpara"], answer: "C" },
-      95: { question: "Where did Buddha appear?", options: ["Magadha", "Ayodhya", "Kikata", "Mathura"], answer: "C" },
-      96: { question: "Who was Buddha’s mother?", options: ["Yashodhara", "Anjanā", "Devaki", "Sita"], answer: "B" },
-      97: { question: "What major value did Buddha teach?", options: ["Devotion", "Truthfulness", "Ahimsa", "Meditation"], answer: "C" },
-      98: { question: "Which type of sacrifices did Buddha oppose?", options: ["Water", "Fire", "Animal", "Grain"], answer: "C" },
-      99: { question: "Which animal did Buddha try to save by stopping animal sacrifices?", options: ["Horse", "Cow", "Goat", "Elephant"], answer: "B" },
-      910: { question: "In which country is Buddha's birthplace traditionally located?", options: ["Sri Lanka", "Tibet", "Lumbini, India", "China"], answer: "C" },
-      101: { question: "In which Yuga will Kalki appear according to the Puranas?", options: ["Dvapara Yuga", "Treta Yuga", "Satya Yuga", "Kali Yuga"], answer: "D" },
-      102: { question: "Which Purana gives details about the Kalki avatar?", options: ["Agni Purana", "Vishnu Purana", "Skanda Purana", "Garuda Purana"], answer: "B" },
-      103: { question: "What is the name of the horse Kalki will ride?", options: ["Uchchaihshravas", "Devadatta", "Ashvamedha", "Vajra"], answer: "B" },
-      104: { question: "What weapon will Kalki use to destroy evil?", options: ["Trident", "Mace", "Shining sword", "Chakra"], answer: "C" },
-      105: { question: "What is the main purpose of Kalki’s appearance?", options: ["To teach Vedas", "To perform penance", "To destroy evil and restore Dharma", "To build temples"], answer: "C" },
-      106: { question: "Where is Kalki said to be born, as per the scriptures?", options: ["Mathura", "Shambhala", "Ayodhya", "Indraprastha"], answer: "B" },
-      107: { question: "Who will be Kalki’s parents according to Shastra?", options: ["Dasharatha and Kaushalya", "Manu and Shatarupa", "Vishnu Yasha and Sumati", "Vasudeva and Devaki"], answer: "C" },
-      108: { question: "What qualities will Kalki possess according to the Bhagavata Purana?", options: ["Riches and fame", "Divine strength, knowledge, bravery, and righteousness", "Magical powers", "Healing abilities"], answer: "B" },
-      109: { question: "What will happen after Kalki ends Kali Yuga?", options: ["Kali Yuga will restart", "Earth will be destroyed", "Satya Yuga will begin", "Kalki will rule forever"], answer: "C" },
-      1010: { question: "Who is Kalki?", options: ["A powerful king", "A prophet", "The final avatar of Vishnu", "A sage"], answer: "C" }
+      11:{question:"What is the primary purpose of Lord Vishnu’s Matsya (fish) incarnation?",options:["To kill demons on land","To save the Vedas and protect the righteous","To create new worlds","To teach humans how to fish"],answer:"B"},
+      12:{question:"Who was the great king that received protection from the Matsya incarnation?",options:["King Harishchandra","King Satyavrata (Śrāddhadeva)","King Janamejaya","King Dhruva"],answer:"B"},
+      13:{question:"How did the fish appear to King Satyavrata?",options:["As a small, humble fish requesting protection","As a large, horned, eight million miles long fish","As a divine bird","As a lion"],answer:"B"},
+      14:{question:"Why did Lord Vishnu first assume the Matsya form during the end of Brahma’s day?",options:["To create the universe anew","To save the Vedic scriptures from the demon Hayagrīva","To teach humans to fish","To establish the monarchy"],answer:"B"},
+      15:{question:"What instructions did Lord Vishnu give to King Satyavrata regarding the boat?",options:["To build a boat on land and wait for the flood to end","To load herbs and seeds on the boat and sail with the ṛṣis during the flood","To fight the water with weapons kept in the boat","To stay on land and observe the flood from afar"],answer:"B"},
+      16:{question:"What item was used to attach the boat to the fish’s horn?",options:["A chain of gold","A serpent named Vāsuki","A rope of flowers","A piece of wood"],answer:"B"},
+      17:{question:"According to the story, what did the fish tell King Satyavrata about the waters?",options:["That the waters would never recede","That the waters would trap the boat forever","That the waters would eventually inundate all worlds and then subside","That the waters would turn into fire"],answer:"C"},
+      18:{question:"In the Matsya avatar story, who was the demon that stole the Vedic knowledge?",options:["Rāhu","Hayagrīva","Kansa","Hiranyakashipu"],answer:"B"},
+      19:{question:"What did Lord Vishnu reveal to King Satyavrata during his journey in the boat?",options:["The secret of immortality","The Absolute Truth and spiritual science including Vedic knowledge","The art of war","The location of hidden treasure"],answer:"B"},
+      110:{question:"What is the significance of hearing the story of Matsya avatar according to the text?",options:["It guarantees material wealth","It delivers one from the reactions of sinful life and helps attain liberation","It provides a way to become a king","It explains how to fish effectively"],answer:"B"},
+      21:{question:"What animal form did Lord Vishnu take in the Kurma avatar?",options:["Fish","Boar","Turtle","Lion"],answer:"C"},
+      22:{question:"What was the main event during which Lord Vishnu took the Kurma avatar?",options:["Battle of Kurukshetra","Samudra Manthan (Churning of the ocean)","Rama’s exile","Building of the bridge to Lanka"],answer:"B"},
+      23:{question:"What mountain was used as the churning rod?",options:["Mount Meru","Mount Kailash","Mount Mandara","Mount Gandhamadana"],answer:"C"},
+      24:{question:"Which snake was used as the rope to churn the ocean?",options:["Shesha","Kaliya","Vasuki","Ananta"],answer:"C"},
+      25:{question:"Why did Lord Vishnu take the form of a turtle?",options:["To defeat the demons","To carry the Earth","To support the mountain during the churning","To save Lakshmi"],answer:"C"},
+      26:{question:"Who were the two groups involved in the churning of the ocean?",options:["Gandharvas and Rakshasas","Devas and Asuras","Humans and Demons","Saints and Kings"],answer:"B"},
+      27:{question:"What were the Devas and Asuras trying to get from the ocean?",options:["Gold","Lakshmi","Amrita (nectar of immortality)","A divine weapon"],answer:"C"},
+      28:{question:"In which Purana is the Kurma avatar story described in detail?",options:["Shiva Purana","Bhagavata Purana","Agni Purana","Linga Purana"],answer:"B"},
+      29:{question:"What was the result of the churning of the ocean besides amrita?",options:["Only gold appeared","Many divine beings and items appeared","Lord Shiva appeared","The ocean dried up"],answer:"B"},
+      210:{question:"What does the Kurma avatar teach us spiritually?",options:["To seek wealth and power","To meditate alone in the forest","To stay steady and support others in tough times","To destroy enemies by any means"],answer:"C"},
+      31:{question:"Who does Lord Varaha rescue from the primordial waters?",options:["Goddess Lakshmi","Goddess Sarasvati","Goddess Bhumi (Earth)","Goddess Ganga"],answer:"C"},
+      32:{question:"Which demon is slain by Lord Varaha during this mission?",options:["Ravana","Hiranyaksha","Kamsa","Vritra"],answer:"B"},
+      33:{question:"From where is the first small boar incarnation of Varaha said to have emerged?",options:["Brahma’s friend's mouth","Shiva's third eye","Brahma’s nostril","Vishnu’s heart"],answer:"C"},
+      34:{question:"During which Puranic devastation did the “white boar” incarnation appear?",options:["Pralayic","Svayambhuva","Chakshusha","Maha Pralaya"],answer:"B"},
+      35:{question:"What is Varaha’s form described as in anthropomorphic iconography?",options:["Fully human","Boar body, human head","Boar head, human body","Human head, deer body"],answer:"C"},
+      36:{question:"What festival commemorates Lord Varaha’s appearance?",options:["Holi","Varaha Dvadasi","Diwali","Janmashtami"],answer:"B"},
+      37:{question:"In Vedic cosmology, what ocean did Earth sink into before being rescued?",options:["Yamuna Ocean","Garbhodaka Ocean","Manasa Ocean","Mandara Ocean"],answer:"B"},
+      38:{question:"Who prayed to Lord Shiva for mercy after conceiving the demons Hiranyaksha and Hiranyakashipu?",options:["Aditi","Diti","Sarasvati","Bhumi"],answer:"B"},
+      39:{question:"Which avatar number is Varaha in the Dashavatara list?",options:["First","Second","Third","Fourth"],answer:"C"},
+      310:{question:"What does Lord Varaha symbolically represent?",options:["Creation","Destruction","Preservation","Sacrifice and restoration of cosmic order"],answer:"D"},
+      41:{question:"In which Purana is Lord Narasimha’s avatar prominently described?",options:["Garuda Purana","Skanda Purana","Vishnu Purana","Agni Purana"],answer:"C"},
+      42:{question:"What form did Lord Narasimha take?",options:["Half-man, half-elephant","Half-lion, half-man","Full human form","Half-boar, half-man"],answer:"B"},
+      43:{question:"Who was the demon king killed by Narasimha?",options:["Ravana","Kamsa","Hiranyakashipu","Duryodhana"],answer:"C"},
+      44:{question:"Who was the devotee son of Hiranyakashipu?",options:["Vibhishana","Arjuna","Prahlāda","Bharata"],answer:"C"},
+      45:{question:"From where did Lord Narasimha appear?",options:["From the sky","From the ocean","From a pillar","From a temple"],answer:"C"},
+      46:{question:"Why did Lord Vishnu take the Narasimha form?",options:["To stop a war","To fulfill Brahma’s boon conditions","To protect the devas from Ravana","To teach meditation"],answer:"B"},
+      47:{question:"At what time did Narasimha kill Hiranyakashipu?",options:["Morning","Night","Dusk (twilight)","Noon"],answer:"C"},
+      48:{question:"On what was Hiranyakashipu placed when he was killed?",options:["In the sky","On the ground","On Narasimha’s lap","On a throne"],answer:"C"},
+      49:{question:"What did Narasimha use to kill Hiranyakashipu?",options:["Chakra","Sword","Nails","Mace"],answer:"C"},
+      410:{question:"What does the form of Narasimha symbolize?",options:["The strength of humans","The victory of fear","Protection of devotees and destruction of evil","The end of all avatars"],answer:"C"},
+      51:{question:"Vamana incarnation is also called as",options:["Trivikrama / Upendra","Chathurbahu","Dwimukha","Heramba"],answer:"A"},
+      52:{question:"Vamana was born to these following people",options:["Anasuya & Atri Rishi","Aditi & Kashyapa","Satyavati & Vyasa","Tara & Brihaspati"],answer:"B"},
+      53:{question:"Who is the grandfather of Bali Maharaj?",options:["Prahalada","Kapila","Svayambhuvu Manu","Suka Maharaj"],answer:"A"},
+      54:{question:"In his fifth Incarnation, Lord Vishnu came to earth as a?",options:["Giant Brahmin","Vaishya form","Kshatriya form","Dwarf Brahmin form"],answer:"D"},
+      55:{question:"What is the meaning of Daityas?",options:["Demons","Asuras","Vasuki","Gandharvas"],answer:"A"},
+      56:{question:"Bali performed which yaga and conquered the world?",options:["Rajasuya yaga","Ashwamedha yaga","Vajapeya yaga","Viswajith yaga"],answer:"D"},
+      57:{question:"Who is the father of Bali Maharaj?",options:["Hiranyakasipu","Angadha","Virochana","Tarakasura"],answer:"C"},
+      58:{question:"What are the 3 steps Vamana asked Bali?",options:["Earth, ocean, forest","Earth, sky, ocean","Sky, earth and one on his head","Sky, heaven, earth"],answer:"C"},
+      59:{question:"What is Bali Chakravarthy’s wife name?",options:["Anuhrada","Vindhyavali","Simhika","Samhrada"],answer:"B"},
+      510:{question:"After Vamana revealed his true identity as Lord Vishnu, He blessed Bali with which Loka?",options:["Jana Loka","Tapo Loka","Pathala Loka","Mahar Loka"],answer:"C"},
+      61:{question:"Who was the sage father of Parashurama, known for his strict discipline and tapasya?",options:["Jamadagni","Atri","Kashyapa","Vasishtha"],answer:"A"},
+      62:{question:"What weapon did Lord Shiva gift to Parashurama after testing his devotion?",options:["Trishula","Parashu (Battle Axe)","Vajra","Sudarshan Chakra"],answer:"B"},
+      63:{question:"Which powerful king with a thousand arms was slain by Parashurama?",options:["Duryodhana","Bali","Kartavirya Arjuna","Ravana"],answer:"C"},
+      64:{question:"Which river did Parashurama invite to flow through the land he reclaimed from the sea?",options:["Saraswati","Yamuna","Narmada","Ganga"],answer:"D"},
+      65:{question:"After being humbled by Lord Rama, what did Parashurama give up?",options:["His bow","His renunciation","His Kshatriya pride","His meditative powers"],answer:"C"},
+      66:{question:"Which present-day Indian state is said to have been created by Parashurama?",options:["Gujarat","Kerala","Odisha","Maharashtra"],answer:"B"},
+      67:{question:"Which avatar of Vishnu broke Shiva’s bow and humbled Parashurama?",options:["Rama","Krishna","Vamana","Narasimha"],answer:"A"},
+      68:{question:"What was the name of the divine cow that Jamadagni possessed?",options:["Kamadhenu","Surabhi","Nandini","Shabala"],answer:"A"},
+      69:{question:"Where is Parashurama believed to be meditating, waiting for Kalki?",options:["Gandhamadana","Mahendragiri","Kailash","Vindhyas"],answer:"B"},
+      610:{question:"Whom did Parashurama train in the use of divine weapons?",options:["Arjuna","Karna","Bhishma","Both B and C"],answer:"D"},
+      71:{question:"Lakshmana is considered to be the incarnation of whom?",options:["Lord Vishnu","Lord Shiva","Lord Brahma","Sheshnag"],answer:"D"},
+      72:{question:"What was the name of the forest where Lord Rama, Lakshmana and Goddess Sita stayed during exile?",options:["Aranya","Aranyak","Dandakaranya","Karanya"],answer:"C"},
+      73:{question:"Ravana was a devotee of who among the following God?",options:["Vishnu","Brahma","Shiva","None of the above"],answer:"C"},
+      74:{question:"What was the name of a bow that was used by Lord Rama in Goddess Sita swayamvar to marry her?",options:["Pinaka","Pindaka","Anandaka","Rulapand"],answer:"A"},
+      75:{question:"Who is the main antagonist in the Ramayana?",options:["Ravana","Kumbhakarna","Indrajit","Maricha"],answer:"A"},
+      76:{question:"What is the name of Sita’s sister?",options:["Nikasha","Mandavi","Surpanakha","Urmila"],answer:"D"},
+      77:{question:"What is the name of Ravan’s Mother?",options:["Nikasha","Kaikesi","Kausalya","Surpanakha"],answer:"B"},
+      78:{question:"Which bird helps Rama in finding Sita?",options:["Jatayu","Garuda","Suparna","All of the above"],answer:"A"},
+      79:{question:"Who is Rama’s faithful devotee who builds a bridge to Lanka?",options:["Nala","Vali","Sugriva","None of the above"],answer:"A"},
+      710:{question:"Who is the son of Ravana?",options:["Kumbhakarna","Indrajit","Vibhishana","None of the above"],answer:"B"},
+      81:{question:"Where was Lord Kṛṣṇa born?",options:["Gokula","Ayodhyā","Mathurā","Dvārakā"],answer:"C"},
+      82:{question:"Who carried baby Kṛṣṇa across the Yamunā River to Gokula?",options:["Kaṁsa","Mother Devakī","Vasudeva","Nanda Mahārāja"],answer:"C"},
+      83:{question:"Who were the arjuna trees that Kṛṣṇa liberated?",options:["Nalakūvara and Maṇigrīva","Jaya and Vijaya","Śukadeva and Vyāsa","Śiva and Pārvatī"],answer:"A"},
+      84:{question:"Why were the sons of Kuvera cursed to become trees?",options:["They stole Kṛṣṇa’s flute","They were intoxicated and disrespected Nārada Muni","They refused to worship Brahmā","They hurt a cow"],answer:"B"},
+      85:{question:"What happened when Mother Yaśodā tied Kṛṣṇa to a mortar?",options:["He cried all day","He pulled it and broke the twin arjuna trees","He ran away to the forest","He chanted mantras"],answer:"B"},
+      86:{question:"What lesson does Pūtanā’s liberation teach us?",options:["Demons go to hell","Only saints can approach God","Even false service to Kṛṣṇa, if done in contact with Him, gives liberation","Poison cannot harm God"],answer:"C"},
+      87:{question:"What is the main purpose of reading the Kṛṣṇa Book?",options:["To improve memory","To develop love and devotion for Kṛṣṇa","To learn Sanskrit","To memorize stories"],answer:"B"},
+      88:{question:"Which demon came as a whirlwind to kidnap Kṛṣṇa?",options:["Aghāsura","Tṛṇāvarta","Keśī","Dhenukāsura"],answer:"B"},
+      89:{question:"How did Aghāsura try to kill Kṛṣṇa and His friends?",options:["By swallowing them like a giant snake","By drowning them in the Yamunā","By setting fire","By flying them away"],answer:"A"},
+      810:{question:"Who kidnapped the cowherd boys and calves to test Kṛṣṇa?",options:["Śiva","Brahmā","Indra","Śukadeva"],answer:"B"},
+      91:{question:"In which Purana is Buddha’s avatar mentioned?",options:["Shiva Purana","Vishnu Purana","Bhāgavatam","Garuda Purana"],answer:"C"},
+      92:{question:"In which Canto is Buddha Avatar described?",options:["Ten","Five","One","Three"],answer:"C"},
+      93:{question:"What form did Lord Buddha take to appear in this world?",options:["Boar","Human","Fish","Lion"],answer:"B"},
+      94:{question:"Which Yuga did Buddha appear in?",options:["Satya","Tretā","Kali","Dvāpara"],answer:"C"},
+      95:{question:"Where did Buddha appear?",options:["Magadha","Ayodhya","Kikata","Mathura"],answer:"C"},
+      96:{question:"Who was Buddha’s mother?",options:["Yashodhara","Anjanā","Devaki","Sita"],answer:"B"},
+      97:{question:"What major value did Buddha teach?",options:["Devotion","Truthfulness","Ahimsa","Meditation"],answer:"C"},
+      98:{question:"Which type of sacrifices did Buddha oppose?",options:["Water","Fire","Animal","Grain"],answer:"C"},
+      99:{question:"Which animal did Buddha try to save by stopping animal sacrifices?",options:["Horse","Cow","Goat","Elephant"],answer:"B"},
+      910:{question:"In which country is Buddha's birthplace traditionally located?",options:["Sri Lanka","Tibet","Lumbini, India","China"],answer:"C"},
+      101:{question:"In which Yuga will Kalki appear according to the Puranas?",options:["Dvapara Yuga","Treta Yuga","Satya Yuga","Kali Yuga"],answer:"D"},
+      102:{question:"Which Purana gives details about the Kalki avatar?",options:["Agni Purana","Vishnu Purana","Skanda Purana","Garuda Purana"],answer:"B"},
+      103:{question:"What is the name of the horse Kalki will ride?",options:["Uchchaihshravas","Devadatta","Ashvamedha","Vajra"],answer:"B"},
+      104:{question:"What weapon will Kalki use to destroy evil?",options:["Trident","Mace","Shining sword","Chakra"],answer:"C"},
+      105:{question:"What is the main purpose of Kalki’s appearance?",options:["To teach Vedas","To perform penance","To destroy evil and restore Dharma","To build temples"],answer:"C"},
+      106:{question:"Where is Kalki said to be born, as per the scriptures?",options:["Mathura","Shambhala","Ayodhya","Indraprastha"],answer:"B"},
+      107:{question:"Who will be Kalki’s parents according to Shastra?",options:["Dasharatha and Kaushalya","Manu and Shatarupa","Vishnu Yasha and Sumati","Vasudeva and Devaki"],answer:"C"},
+      108:{question:"What qualities will Kalki possess according to the Bhagavata Purana?",options:["Riches and fame","Divine strength, knowledge, bravery, and righteousness","Magical powers","Healing abilities"],answer:"B"},
+      109:{question:"What will happen after Kalki ends Kali Yuga?",options:["Kali Yuga will restart","Earth will be destroyed","Satya Yuga will begin","Kalki will rule forever"],answer:"C"},
+      1010:{question:"Who is Kalki?",options:["A powerful king","A prophet","The final avatar of Vishnu","A sage"],answer:"C"}
     };
 
+    // Build QUESTION_BANK: 10 avatars × 10 questions
     const QUESTION_BANK = {}; for (let i=1;i<=10;i++) QUESTION_BANK[i] = new Array(10).fill(null);
     Object.keys(RAW_QUESTIONS).forEach(k=>{
       const key = k.toString();
@@ -266,40 +263,32 @@
     let currentUserName="", currentUserMobile="", selectedAvatarIndex=null, correctStreak=0;
     let allAttempts=[], allWinners=[];
     const winSound = new Audio("https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3");
+
+    // Track correct (avatar, question) pairs for current user
     let correctAnsweredSet = new Set();
 
-    // Netlify Forms post
-    async function postNetlifyForm(formName, fields) {
-      const body = new URLSearchParams({ 'form-name': formName, ...fields }).toString();
-      await fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body });
-    }
-    async function saveAttemptDoc(payload){
-      try {
-        await postNetlifyForm('attempts', {
-          name: payload.name || '', mobile: payload.mobile || '', avatar: payload.avatar || '',
-          avatarIndex: String(payload.avatarIndex || ''), questionNumber: String(payload.questionNumber || ''),
-          selectedAnswer: payload.selectedAnswer || '', correct: payload.correct ? 'Yes' : 'No',
-          timestamp: new Date().toISOString()
-        });
-      } catch(e) { console.warn('attempt save failed', e); }
-      allAttempts=[{...payload, timestamp:{seconds:Math.floor(Date.now()/1000)}}, ...allAttempts];
-      try{ localStorage.setItem('quiz_attempts_local', JSON.stringify(allAttempts)); }catch{}
-    }
-    async function saveWinnerDoc(payload){
-      try { await postNetlifyForm('winners', { name: payload.name || '', mobile: payload.mobile || '', timestamp: new Date().toISOString() }); }
-      catch(e) { console.warn('winner save failed', e); }
-      allWinners=[{...payload, timestamp:{seconds:Math.floor(Date.now()/1000)}}, ...allWinners];
-      try{ localStorage.setItem('quiz_winners_local', JSON.stringify(allWinners)); }catch{}
+    // Netlify Forms helper
+    function postToNetlify(formName, data){
+      const payload = new URLSearchParams({ "form-name": formName, ...data }).toString();
+      return fetch("/", {
+        method: "POST",
+        headers: { "Content-Type":"application/x-www-form-urlencoded" },
+        body: payload
+      }).catch(()=>{}); // swallow errors silently for the player
     }
 
     // Sections
-    window.showSection = id => { document.querySelectorAll('.section').forEach(s=>s.classList.remove('active')); document.getElementById(id)?.classList.add('active'); };
+    window.showSection = id => {
+      document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+      const el = document.getElementById(id);
+      if(el) el.classList.add('active');
+    };
 
     // AU mobile validation
     function normaliseAuMobile(input){
       const digits=input.replace(/[^\d+]/g,'');
-      const auMobileRegex=/^(?:\+?61|0)4\\d{8}$/;
-      if(!auMobileRegex.test(digits.replace(/\\s/g,''))) return null;
+      const auMobileRegex=/^(?:\+?61|0)4\d{8}$/;
+      if(!auMobileRegex.test(digits.replace(/\s/g,''))) return null;
       if(digits.startsWith('0')) return '+61'+digits.slice(1);
       if(digits.startsWith('61')) return '+'+digits;
       return digits;
@@ -309,9 +298,15 @@
     window.saveUserInfo = () => {
       const name=document.getElementById('fullName').value.trim();
       const mobileRaw=document.getElementById('mobileNumber').value.trim();
-      if(!name||!mobileRaw){ showModal('error','Incomplete Details','Please enter both your name and mobile number.',[{text:'Okay'}]); return; }
+      if(!name||!mobileRaw){
+        showModal('error','Incomplete Details','Please enter both your name and mobile number.',[{text:'Okay'}]);
+        return;
+      }
       const normalised=normaliseAuMobile(mobileRaw);
-      if(!normalised){ showModal('error','Invalid Number','Please enter a valid Australian mobile (04XXXXXXXX or +614XXXXXXXX).',[{text:'Okay'}]); return; }
+      if(!normalised){
+        showModal('error','Invalid Number','Please enter a valid Australian mobile (04XXXXXXXX or +614XXXXXXXX).',[{text:'Okay'}]);
+        return;
+      }
       currentUserName=name; currentUserMobile=normalised;
       showSection('avatarSection');
     };
@@ -322,7 +317,7 @@
         const card=document.createElement('div');
         card.className='p-4 bg-white rounded-xl shadow-md cursor-pointer text-center hover:shadow-lg hover:bg-yellow-50 hover:-translate-y-1 transition-all';
         card.onclick=()=>selectAvatar(idx);
-        card.innerHTML=\`<i class="fa-solid fa-\${a.icon} text-4xl text-orange-500 mb-2"></i><p class="font-semibold text-gray-700">\${a.name}</p>\`;
+        card.innerHTML=`<i class="fa-solid fa-${a.icon} text-4xl text-orange-500 mb-2"></i><p class="font-semibold text-gray-700">${a.name}</p>`;
         container.appendChild(card);
       });
     };
@@ -332,7 +327,7 @@
       AVATARS.forEach((a,idx)=>{
         const btn=document.createElement('button');
         btn.className='p-3 bg-white border rounded-xl shadow-sm hover:shadow-md hover:bg-yellow-50 transition text-center';
-        btn.innerHTML=\`<i class="fa-solid fa-\${a.icon} text-2xl text-orange-500 mb-1"></i><div class="font-semibold text-gray-700">\${a.name}</div>\`;
+        btn.innerHTML=`<i class="fa-solid fa-${a.icon} text-2xl text-orange-500 mb-1"></i><div class="font-semibold text-gray-700">${a.name}</div>`;
         btn.onclick=()=>{ selectAvatar(idx); closeAvatarModal(); };
         container.appendChild(btn);
       });
@@ -340,7 +335,7 @@
 
     window.selectAvatar = idx => {
       selectedAvatarIndex = idx + 1;
-      document.getElementById('selectedAvatarDisplay').innerText = \`Avatar: \${AVATARS[idx].name}\`;
+      document.getElementById('selectedAvatarDisplay').innerText = `Avatar: ${AVATARS[idx].name}`;
       showSection('quizSection');
     };
 
@@ -351,10 +346,19 @@
 
     window.showQuestion = () => {
       const qn=parseInt(document.getElementById('questionNumberInput').value,10);
-      if(isNaN(qn)||qn<1||qn>10){ showModal('error','Invalid Question','Please enter a number between 1 and 10.',[{text:'Okay'}]); return; }
-      if(!selectedAvatarIndex){ showModal('error','No Avatar','Please select an avatar first.',[{text:'Choose Avatar', class:'bg-orange-500 hover:bg-orange-600', callback:()=>{ showSection('avatarSection'); }}]); return; }
+      if(isNaN(qn)||qn<1||qn>10){
+        showModal('error','Invalid Question','Please enter a number between 1 and 10.',[{text:'Okay'}]);
+        return;
+      }
+      if(!selectedAvatarIndex){
+        showModal('error','No Avatar','Please select an avatar first.',[
+          {text:'Choose Avatar', class:'bg-orange-500 hover:bg-orange-600', callback:()=>{ showSection('avatarSection'); }}
+        ]);
+        return;
+      }
 
-      const key = \`\${selectedAvatarIndex}-\${qn}\`;
+      // Prevent repeating a correct (avatar, question)
+      const key = `${selectedAvatarIndex}-${qn}`;
       if (correctAnsweredSet.has(key)) {
         showModal('error','Already Answered','You have already answered this question correctly for this avatar. Please choose a different question number.',[{text:'Okay'}]);
         return;
@@ -362,14 +366,17 @@
 
       const data=getQuestion(selectedAvatarIndex, qn);
       const area=document.getElementById('questionArea');
-      if(!data){ area.innerHTML=\`<p class="text-center text-red-500 font-semibold">❌ Question not set for this avatar/number yet.</p>\`; return; }
+      if(!data){
+        area.innerHTML=`<p class="text-center text-red-500 font-semibold">❌ Question not set for this avatar/number yet.</p>`;
+        return;
+      }
 
-      let html=\`<p class="text-lg font-semibold text-center mb-4">\${data.question}</p><div class="space-y-3">\`;
+      let html=`<p class="text-lg font-semibold text-center mb-4">${data.question}</p><div class="space-y-3">`;
       data.options.forEach((opt,i)=>{
         const label=String.fromCharCode(65+i);
-        html+=\`<button id="ans-\${label}" onclick="checkAnswer(this,'\${label}','\${data.answer}',\${selectedAvatarIndex},\${qn})" class="w-full text-left p-3 bg-white border-2 border-orange-200 rounded-lg hover:bg-orange-100 hover:border-orange-400 transition-all">\${label}) \${opt}</button>\`;
+        html+=`<button id="ans-${label}" onclick="checkAnswer(this,'${label}','${data.answer}',${selectedAvatarIndex},${qn})" class="w-full text-left p-3 bg-white border-2 border-orange-200 rounded-lg hover:bg-orange-100 hover:border-orange-400 transition-all">${label}) ${opt}</button>`;
       });
-      html+=\`</div>\`;
+      html+=`</div>`;
       area.innerHTML=html;
     };
 
@@ -377,49 +384,65 @@
       document.querySelectorAll('#questionArea button').forEach(b=>b.disabled=true);
       const isCorrect = userAns===correctAns;
 
+      // Visual feedback WITHOUT revealing the correct answer on wrong attempts
       if(isCorrect){
         btn.classList.add('!bg-green-500','text-white','!border-green-700','font-bold'); btn.innerHTML+=' <i class="fa-solid fa-check"></i>';
       } else {
         btn.classList.add('!bg-red-500','text-white','!border-red-700','font-bold'); btn.innerHTML+=' <i class="fa-solid fa-xmark"></i>';
       }
 
-      try{
-        await saveAttemptDoc({
-          name: currentUserName, mobile: currentUserMobile,
-          avatar: AVATARS[avatarIdx-1]?.name || '', avatarIndex: avatarIdx,
-          questionNumber: qNum, selectedAnswer: userAns, correct: isCorrect
-        });
-      }catch(e){ console.error('Save error', e); }
+      const payload = {
+        name: currentUserName,
+        mobile: currentUserMobile,
+        avatar: AVATARS[avatarIdx-1]?.name || '',
+        avatarIndex: String(avatarIdx),
+        questionNumber: String(qNum),
+        selectedAnswer: userAns,
+        correct: isCorrect ? 'Yes' : 'No',
+        timestamp: new Date().toISOString()
+      };
+      // Send to Netlify Forms (attempt)
+      postToNetlify('attempts', payload);
+      // also store locally for the Admin view
+      allAttempts=[...allAttempts,payload];
 
       setTimeout(()=>{
         if(isCorrect){
-          correctAnsweredSet.add(\`\${avatarIdx}-\${qNum}\`);
+          correctAnsweredSet.add(`${avatarIdx}-${qNum}`);
           correctStreak++; updateStreakTracker(correctStreak);
           resetQuestionUI();
           if(correctStreak>=3){ handleWin(); }
-          else { openAvatarModal(); }
+          else { openAvatarModal(); } // prompt to (re)select avatar for next question
         } else {
           correctStreak=0; updateStreakTracker(0);
-          showModal('loss','Not quite…','Try another question number.',[{text:'Okay', class:'bg-orange-500 hover:bg-orange-600', callback:()=>{ resetQuestionUI(); }}]);
+          showModal('loss','Not quite…','Try another question number.',[
+            {text:'Okay', class:'bg-orange-500 hover:bg-orange-600', callback:()=>{ resetQuestionUI(); }}
+          ]);
         }
       },900);
     };
 
-    function resetQuestionUI(){ document.getElementById('questionArea').innerHTML=''; document.getElementById('questionNumberInput').value=''; }
+    function resetQuestionUI(){
+      document.getElementById('questionArea').innerHTML='';
+      document.getElementById('questionNumberInput').value='';
+    }
 
     async function handleWin(){
-      try{ await saveWinnerDoc({name:currentUserName,mobile:currentUserMobile}); }catch{}
-      try{ await winSound.play(); }catch{}
+      const winner = { name:currentUserName, mobile:currentUserMobile, timestamp:new Date().toISOString() };
+      postToNetlify('winners', winner);
+      allWinners=[...allWinners,winner];
+
+      launchFireworks(); try{ await winSound.play(); }catch{}
       showModal('win','🪷 You Won! 🪷','Hare Krishna! Show this to a youth member for your prize.',[
         { text:'<i class="fa-brands fa-instagram"></i> Follow Us', isLink:true, href:'https://www.instagram.com/iskcon_ns_youth/', class:'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600' },
         { text:'Play Again', class:'bg-gray-500 hover:bg-gray-600', callback:restartGame }
       ]);
-      launchFireworks();
     }
 
     function updateStreakTracker(streak){
       document.querySelectorAll('#streak-tracker i').forEach((icon,i)=>{
-        if(i<streak) icon.classList.replace('text-gray-300','text-yellow-400'); else icon.classList.replace('text-yellow-400','text-gray-300');
+        if(i<streak) icon.classList.replace('text-gray-300','text-yellow-400');
+        else icon.classList.replace('text-yellow-400','text-gray-300');
       });
     }
     function restartGame(){
@@ -434,68 +457,72 @@
     window.showAdminLogin=()=>{
       showModal('prompt','Admin Access','Enter the admin password.',[
         { text:'Login', class:'bg-blue-500 hover:bg-blue-600', callback:pwd=>{
-          if(pwd===ADMIN_PASSWORD){
-            try{
-              const a=JSON.parse(localStorage.getItem('quiz_attempts_local')||'[]');
-              const w=JSON.parse(localStorage.getItem('quiz_winners_local')||'[]');
-              if(a?.length) allAttempts=a; if(w?.length) allWinners=w;
-            }catch{}
-            showResultsTable(); showSection('adminSection');
-          }
+          if(pwd===ADMIN_PASSWORD){ showResultsTable(); showSection('adminSection'); }
           else{ showModal('error','Access Denied','Incorrect password.',[{text:'Okay'}]); }
         }}
       ]);
     };
     window.downloadResults=()=>{
       const hasData=(allAttempts?.length||0)+(allWinners?.length||0)>0;
-      if(!hasData){ showModal('error','No Data','No local results to download on this device yet.',[{text:'Okay'}]); return; }
+      if(!hasData){
+        showModal('error','No Data','No quiz results to download yet.',[{text:'Okay'}]); return;
+      }
       const attemptHeaders=["Name","Mobile","Avatar","AvatarIdx","Q#","Correct","Time"];
-      const attemptRows=(allAttempts||[]).map(r=>{
-        const time=r.timestamp? new Date((r.timestamp.seconds||Math.floor(Date.now()/1000))*1000).toLocaleString(): new Date().toLocaleString();
-        return [r.name,r.mobile,r.avatar,r.avatarIndex||'',r.questionNumber||'',r.correct?'Yes':'No',time];
-      });
+      const attemptRows=(allAttempts||[]).map(r=>[r.name,r.mobile,r.avatar,r.avatarIndex||'',r.questionNumber||'',r.correct||'',r.timestamp||'']);
       const winnerHeaders=["Name","Mobile","Time"];
-      const winnerRows=(allWinners||[]).map(w=>{
-        const time=w.timestamp? new Date((w.timestamp.seconds||Math.floor(Date.now()/1000))*1000).toLocaleString(): new Date().toLocaleString();
-        return [w.name,w.mobile,time];
-      });
+      const winnerRows=(allWinners||[]).map(w=>[w.name,w.mobile,w.timestamp||'']);
       const csvAttempts=[attemptHeaders,...attemptRows].map(r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(",")).join("\n");
       const csvWinners=[winnerHeaders,...winnerRows].map(r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(",")).join("\n");
       const final="Attempts\n"+csvAttempts+"\n\nWinners\n"+csvWinners;
-      const blob=new Blob([final],{type:'text/csv'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='quiz_results_local.csv'; a.click();
+      const blob=new Blob([final],{type:'text/csv'});
+      const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='quiz_results.csv'; a.click();
     };
     function showResultsTable(){
       const c=document.getElementById('resultTableContainer'); let html="";
       if(allAttempts && allAttempts.length){
-        html+="<h3 class='text-xl font-bold mb-2 text-gray-700'>Quiz Attempts (this device)</h3><table class='w-full border-collapse'><thead class='bg-gray-200'><tr><th class='p-2 border'>Name</th><th class='p-2 border'>Mobile</th><th class='p-2 border'>Avatar</th><th class='p-2 border'>AvatarIdx</th><th class='p-2 border'>Q#</th><th class='p-2 border'>Correct</th></tr></thead><tbody>";
-        [...allAttempts].forEach(r=>{
-          html+=`<tr class='border-b'><td class='p-2 border'>${r.name||''}</td><td class='p-2 border'>${r.mobile||''}</td><td class='p-2 border'>${r.avatar||''}</td><td class='p-2 border'>${r.avatarIndex||''}</td><td class='p-2 border'>${r.questionNumber||''}</td><td class='p-2 border ${r.correct?'text-green-600':'text-red-600'}'>${r.correct?'Yes':'No'}</td></tr>`;
+        html+="<h3 class='text-xl font-bold mb-2 text-gray-700'>Quiz Attempts</h3><table class='w-full border-collapse'><thead class='bg-gray-200'><tr><th class='p-2 border'>Name</th><th class='p-2 border'>Mobile</th><th class='p-2 border'>Avatar</th><th class='p-2 border'>AvatarIdx</th><th class='p-2 border'>Q#</th><th class='p-2 border'>Correct</th></tr></thead><tbody>";
+        [...allAttempts].slice().reverse().forEach(r=>{
+          html+=`<tr class='border-b'><td class='p-2 border'>${r.name||''}</td><td class='p-2 border'>${r.mobile||''}</td><td class='p-2 border'>${r.avatar||''}</td><td class='p-2 border'>${r.avatarIndex||''}</td><td class='p-2 border'>${r.questionNumber||''}</td><td class='p-2 border ${r.correct==='Yes'?'text-green-600':'text-red-600'}'>${r.correct||''}</td></tr>`;
         });
         html+="</tbody></table>";
       }
       if(allWinners && allWinners.length){
-        html+="<h3 class='text-xl font-bold mt-6 mb-2 text-gray-700'>🎉 Winners (this device)</h3><table class='w-full border-collapse'><thead class='bg-gray-200'><tr><th class='p-2 border'>Name</th><th class='p-2 border'>Mobile</th><th class='p-2 border'>Time</th></tr></thead><tbody>";
-        [...allWinners].forEach(w=>{
-          const time=w.timestamp? new Date((w.timestamp.seconds||Math.floor(Date.now()/1000))*1000).toLocaleString(): '—';
-          html+=`<tr class='border-b'><td class='p-2 border'>${w.name||''}</td><td class='p-2 border'>${w.mobile||''}</td><td class='p-2 border'>${time}</td></tr>`;
+        html+="<h3 class='text-xl font-bold mt-6 mb-2 text-gray-700'>🎉 Winners List</h3><table class='w-full border-collapse'><thead class='bg-gray-200'><tr><th class='p-2 border'>Name</th><th class='p-2 border'>Mobile</th><th class='p-2 border'>Time</th></tr></thead><tbody>";
+        [...allWinners].slice().reverse().forEach(w=>{
+          html+=`<tr class='border-b'><td class='p-2 border'>${w.name||''}</td><td class='p-2 border'>${w.mobile||''}</td><td class='p-2 border'>${w.timestamp||''}</td></tr>`;
         });
         html+="</tbody></table>";
       }
-      c.innerHTML = html || "<p>No local results yet. Submissions are in Netlify Forms.</p>";
+      c.innerHTML = html || "<p>No results yet. Data will appear here.</p>";
     }
 
     // Modal helpers
     window.showModal=(type,title,message,buttons=[])=>{
       const m=document.getElementById('customModal');
-      document.getElementById('modalIcon').innerHTML={success:'<i class="fa-solid fa-circle-check text-green-500"></i>',error:'<i class="fa-solid fa-circle-xmark text-red-500"></i>',win:'<i class="fa-solid fa-trophy text-yellow-500"></i>',loss:'<i class="fa-solid fa-heart-crack text-gray-500"></i>',prompt:'<i class="fa-solid fa-key text-blue-500"></i>'}[type]||'';
-      document.getElementById('modalTitle').innerText=title; document.getElementById('modalMessage').innerText=message;
+      document.getElementById('modalIcon').innerHTML={
+        success:'<i class="fa-solid fa-circle-check text-green-500"></i>',
+        error:'<i class="fa-solid fa-circle-xmark text-red-500"></i>',
+        win:'<i class="fa-solid fa-trophy text-yellow-500"></i>',
+        loss:'<i class="fa-solid fa-heart-crack text-gray-500"></i>',
+        prompt:'<i class="fa-solid fa-key text-blue-500"></i>'
+      }[type]||'';
+      document.getElementById('modalTitle').innerText=title;
+      document.getElementById('modalMessage').innerText=message;
       const actions=document.getElementById('modalActions'); actions.innerHTML='';
-      const inputContainer=document.getElementById('modalInputContainer'); inputContainer.style.display=type==='prompt'?'block':'none';
+      const inputContainer=document.getElementById('modalInputContainer');
+      inputContainer.style.display=type==='prompt'?'block':'none';
       if(type==='prompt') document.getElementById('modalInput').value='';
       (buttons||[]).forEach(bi=>{
         const el=bi.isLink?Object.assign(document.createElement('a'),{href:bi.href,target:'_blank',rel:'noopener noreferrer'}):document.createElement('button');
-        el.innerHTML=bi.text; el.className=`flex-1 text-white font-bold py-2 px-4 rounded-lg transition-all shadow-md ${bi.class||'bg-gray-500 hover:bg-gray-600'}`;
-        if(!bi.isLink) el.onclick=()=>{ if(type==='prompt') bi.callback?.(document.getElementById('modalInput').value); else bi.callback?.(); m.classList.remove('active'); };
+        el.innerHTML=bi.text;
+        el.className=`flex-1 text-white font-bold py-2 px-4 rounded-lg transition-all shadow-md ${bi.class||'bg-gray-500 hover:bg-gray-600'}`;
+        if(!bi.isLink){
+          el.onclick=()=>{
+            if(type==='prompt') bi.callback?.(document.getElementById('modalInput').value);
+            else bi.callback?.();
+            m.classList.remove('active');
+          };
+        }
         actions.append(el);
       });
       m.classList.add('active');

@@ -17,7 +17,6 @@
     .modal-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:40;align-items:center;justify-content:center}
     .modal-backdrop.active{display:flex}
     .modal-content{transform:scale(.92);opacity:0;transition:all .25s}.modal-backdrop.active .modal-content{transform:scale(1);opacity:1}
-    #offlineBanner{display:none}#offlineBanner.active{display:block}
     .firework{position:absolute;width:10px;height:10px;border-radius:50%;animation:fireworks 1s ease-out forwards;pointer-events:none}
     @keyframes fireworks{0%{transform:scale(0);opacity:1}100%{transform:scale(3);opacity:0}}
   </style>
@@ -34,10 +33,6 @@
       <p class="font-light">Janmashtami Celebration 2025</p>
       <p class="font-semibold text-sm mt-1">ISKCON</p>
     </header>
-
-    <div id="offlineBanner" class="px-4 py-2 text-sm bg-amber-100 text-amber-900 border-b border-amber-300">
-      Running in <strong>offline mode</strong> — results are saved locally and can be exported from Admin.
-    </div>
 
     <main class="p-6">
       <!-- Contact details -->
@@ -85,7 +80,8 @@
       <!-- Admin -->
       <div id="adminSection" class="section">
         <h2 class="text-3xl font-semibold text-center text-gray-800 mb-4">📋 Admin Panel</h2>
-        <button onclick="downloadResults()" class="w-full bg-blue-500 text-white font-bold py-3 rounded-lg hover:bg-blue-600 shadow-lg mb-4">⬇️ Download Results CSV</button>
+        <p class="text-sm text-gray-600 mb-3">This shows only the results recorded on <em>this device</em>. The full record lives in <strong>Netlify → Forms → Submissions</strong>.</p>
+        <button onclick="downloadResults()" class="w-full bg-blue-500 text-white font-bold py-3 rounded-lg hover:bg-blue-600 shadow-lg mb-4">⬇️ Download Local Results CSV</button>
         <div id="resultTableContainer" class="text-sm overflow-x-auto"></div>
       </div>
     </main>
@@ -116,12 +112,28 @@
     </div>
   </div>
 
-  <script type="module">
-    // Firebase (optional) with offline fallback
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+  <!-- Hidden Netlify Forms (parsed at deploy time) -->
+  <form name="attempts" netlify netlify-honeypot="bot-field" hidden>
+    <input type="text"   name="name">
+    <input type="text"   name="mobile">
+    <input type="text"   name="avatar">
+    <input type="number" name="avatarIndex">
+    <input type="number" name="questionNumber">
+    <input type="text"   name="selectedAnswer">
+    <input type="text"   name="correct">
+    <input type="text"   name="timestamp">
+    <input type="text"   name="bot-field">
+  </form>
 
+  <form name="winners" netlify netlify-honeypot="bot-field" hidden>
+    <input type="text"   name="name">
+    <input type="text"   name="mobile">
+    <input type="text"   name="timestamp">
+    <input type="text"   name="bot-field">
+  </form>
+
+  <script>
+    // No Firebase. We save to Netlify Forms instead.
     const ADMIN_PASSWORD = "gopinath123";
     const AVATARS = [
       { name: "Matsya", icon: "fish" },
@@ -136,7 +148,6 @@
       { name: "Kalki", icon: "horse" }
     ];
 
-    // RAW questions from your 11..1010 scheme (first digit = avatar, rest = question #)
     const RAW_QUESTIONS = {
       11: { question: "What is the primary purpose of Lord Vishnu’s Matsya (fish) incarnation?", options: ["To kill demons on land", "To save the Vedas and protect the righteous", "To create new worlds", "To teach humans how to fish"], answer: "B" },
       12: { question: "Who was the great king that received protection from the Matsya incarnation?", options: ["King Harishchandra", "King Satyavrata (Śrāddhadeva)", "King Janamejaya", "King Dhruva"], answer: "B" },
@@ -154,7 +165,7 @@
       24: { question: "Which snake was used as the rope to churn the ocean?", options: ["Shesha", "Kaliya", "Vasuki", "Ananta"], answer: "C" },
       25: { question: "Why did Lord Vishnu take the form of a turtle?", options: ["To defeat the demons", "To carry the Earth", "To support the mountain during the churning", "To save Lakshmi"], answer: "C" },
       26: { question: "Who were the two groups involved in the churning of the ocean?", options: ["Gandharvas and Rakshasas", "Devas and Asuras", "Humans and Demons", "Saints and Kings"], answer: "B" },
-      27: { question: "What were the Devas and Asuras trying to get from the ocean?", options: ["Gold", "Lakshmi", "Amrita (nectar of immortality)", "A divine weapon"], answer: "C" },
+      27: { question: "What were the Devas and Asuras trying to get from the ocean?", options: ["Gold", "Lakshmi", "Amrita (nector of immortality)", "A divine weapon"], answer: "C" },
       28: { question: "In which Purana is the Kurma avatar story described in detail?", options: ["Shiva Purana", "Bhagavata Purana", "Agni Purana", "Linga Purana"], answer: "B" },
       29: { question: "What was the result of the churning of the ocean besides amrita?", options: ["Only gold appeared", "Many divine beings and items appeared", "Lord Shiva appeared", "The ocean dried up"], answer: "B" },
       210: { question: "What does the Kurma avatar teach us spiritually?", options: ["To seek wealth and power", "To meditate alone in the forest", "To stay steady and support others in tough times", "To destroy enemies by any means"], answer: "C" },
@@ -173,11 +184,11 @@
       43: { question: "Who was the demon king killed by Narasimha?", options: ["Ravana", "Kamsa", "Hiranyakashipu", "Duryodhana"], answer: "C" },
       44: { question: "Who was the devotee son of Hiranyakashipu?", options: ["Vibhishana", "Arjuna", "Prahlāda", "Bharata"], answer: "C" },
       45: { question: "From where did Lord Narasimha appear?", options: ["From the sky", "From the ocean", "From a pillar", "From a temple"], answer: "C" },
-      46: { question: "Why did Lord Vishnu take the Narasimha form?", options: ["To stop a war", "To fulfill Brahma’s boon conditions", "To protect the devas from Ravana", "To teach meditation"], answer: "B" },
+      46: { question: "Why did Lord Vishnu take the Narasimha form?", options: ["To stop a war", "To fulfil Brahma’s boon conditions", "To protect the devas from Ravana", "To teach meditation"], answer: "B" },
       47: { question: "At what time did Narasimha kill Hiranyakashipu?", options: ["Morning", "Night", "Dusk (twilight)", "Noon"], answer: "C" },
       48: { question: "On what was Hiranyakashipu placed when he was killed?", options: ["In the sky", "On the ground", "On Narasimha’s lap", "On a throne"], answer: "C" },
       49: { question: "What did Narasimha use to kill Hiranyakashipu?", options: ["Chakra", "Sword", "Nails", "Mace"], answer: "C" },
-      410: { question: "What does the form of Narasimha symbolize?", options: ["The strength of humans", "The victory of fear", "Protection of devotees and destruction of evil", "The end of all avatars"], answer: "C" },
+      410: { question: "What does the form of Narasimha symbolise?", options: ["The strength of humans", "The victory of fear", "Protection of devotees and destruction of evil", "The end of all avatars"], answer: "C" },
       51: { question: "Vamana incarnation is also called as", options: ["Trivikrama / Upendra", "Chathurbahu", "Dwimukha", "Heramba"], answer: "A" },
       52: { question: "Vamana was born to these following people", options: ["Anasuya & Atri Rishi", "Aditi & Kashyapa", "Satyavati & Vyasa", "Tara & Brihaspati"], answer: "B" },
       53: { question: "Who is the grandfather of Bali Maharaj?", options: ["Prahalada", "Kapila", "Svayambhuvu Manu", "Suka Maharaj"], answer: "A" },
@@ -214,7 +225,7 @@
       84: { question: "Why were the sons of Kuvera cursed to become trees?", options: ["They stole Kṛṣṇa’s flute", "They were intoxicated and disrespected Nārada Muni", "They refused to worship Brahmā", "They hurt a cow"], answer: "B" },
       85: { question: "What happened when Mother Yaśodā tied Kṛṣṇa to a mortar?", options: ["He cried all day", "He pulled it and broke the twin arjuna trees", "He ran away to the forest", "He chanted mantras"], answer: "B" },
       86: { question: "What lesson does Pūtanā’s liberation teach us?", options: ["Demons go to hell", "Only saints can approach God", "Even false service to Kṛṣṇa, if done in contact with Him, gives liberation", "Poison cannot harm God"], answer: "C" },
-      87: { question: "What is the main purpose of reading the Kṛṣṇa Book?", options: ["To improve memory", "To develop love and devotion for Kṛṣṇa", "To learn Sanskrit", "To memorize stories"], answer: "B" },
+      87: { question: "What is the main purpose of reading the Kṛṣṇa Book?", options: ["To improve memory", "To develop love and devotion for Kṛṣṇa", "To learn Sanskrit", "To memorise stories"], answer: "B" },
       88: { question: "Which demon came as a whirlwind to kidnap Kṛṣṇa?", options: ["Aghāsura", "Tṛṇāvarta", "Keśī", "Dhenukāsura"], answer: "B" },
       89: { question: "How did Aghāsura try to kill Kṛṣṇa and His friends?", options: ["By swallowing them like a giant snake", "By drowning them in the Yamunā", "By setting fire", "By flying them away"], answer: "A" },
       810: { question: "Who kidnapped the cowherd boys and calves to test Kṛṣṇa?", options: ["Śiva", "Brahmā", "Indra", "Śukadeva"], answer: "B" },
@@ -240,7 +251,6 @@
       1010: { question: "Who is Kalki?", options: ["A powerful king", "A prophet", "The final avatar of Vishnu", "A sage"], answer: "C" }
     };
 
-    // Build QUESTION_BANK: 10 avatars × 10 questions
     const QUESTION_BANK = {}; for (let i=1;i<=10;i++) QUESTION_BANK[i] = new Array(10).fill(null);
     Object.keys(RAW_QUESTIONS).forEach(k=>{
       const key = k.toString();
@@ -253,41 +263,33 @@
     });
 
     // State
-    let db=null, auth=null, attemptsCollection=null, winnersCollection=null;
     let currentUserName="", currentUserMobile="", selectedAvatarIndex=null, correctStreak=0;
-    let allAttempts=[], allWinners=[]; let offlineMode=false;
+    let allAttempts=[], allWinners=[];
     const winSound = new Audio("https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3");
-
-    // Track correct (avatar, question) pairs for current user
     let correctAnsweredSet = new Set();
 
-    // Firebase init (optional) with offline fallback
-    async function initializeFirebase(){
-      try{
-        const appId = window.__app_id || 'default-app-id';
-        const cfg = (()=>{ try{return JSON.parse(window.__firebase_config||'{}')}catch{return {}} })();
-        if (!cfg || !cfg.apiKey){ enableOfflineMode(); return; }
-        const app = initializeApp(cfg); db=getFirestore(app); auth=getAuth(app);
-        if (window.__initial_auth_token) await signInWithCustomToken(auth, window.__initial_auth_token); else await signInAnonymously(auth);
-        attemptsCollection = collection(db, `artifacts/${appId}/public/data/quiz_attempts`);
-        winnersCollection  = collection(db, `artifacts/${appId}/public/data/quiz_winners`);
-        onSnapshot(attemptsCollection, s=>{ allAttempts = s.docs.map(d=>({...d.data(), id:d.id})); if (document.getElementById('adminSection').classList.contains('active')) showResultsTable(); });
-        onSnapshot(winnersCollection, s=>{ allWinners  = s.docs.map(d=>({...d.data(), id:d.id})); if (document.getElementById('adminSection').classList.contains('active')) showResultsTable(); });
-      }catch(e){ console.warn('Firebase init error → offline mode', e); enableOfflineMode(); }
-    }
-    function enableOfflineMode(){
-      offlineMode=true; document.getElementById('offlineBanner').classList.add('active');
-      try{ allAttempts=JSON.parse(localStorage.getItem('quiz_attempts')||'[]'); allWinners=JSON.parse(localStorage.getItem('quiz_winners')||'[]'); }catch{}
+    // Netlify Forms post
+    async function postNetlifyForm(formName, fields) {
+      const body = new URLSearchParams({ 'form-name': formName, ...fields }).toString();
+      await fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body });
     }
     async function saveAttemptDoc(payload){
-      if (!offlineMode && db && attemptsCollection){ try{ return await addDoc(attemptsCollection, payload); }catch(e){ console.warn('attempt save → offline',e);} }
-      allAttempts=[...allAttempts,{...payload,id:`local_${Date.now()}`}];
-      localStorage.setItem('quiz_attempts', JSON.stringify(allAttempts));
+      try {
+        await postNetlifyForm('attempts', {
+          name: payload.name || '', mobile: payload.mobile || '', avatar: payload.avatar || '',
+          avatarIndex: String(payload.avatarIndex || ''), questionNumber: String(payload.questionNumber || ''),
+          selectedAnswer: payload.selectedAnswer || '', correct: payload.correct ? 'Yes' : 'No',
+          timestamp: new Date().toISOString()
+        });
+      } catch(e) { console.warn('attempt save failed', e); }
+      allAttempts=[{...payload, timestamp:{seconds:Math.floor(Date.now()/1000)}}, ...allAttempts];
+      try{ localStorage.setItem('quiz_attempts_local', JSON.stringify(allAttempts)); }catch{}
     }
     async function saveWinnerDoc(payload){
-      if (!offlineMode && db && winnersCollection){ try{ return await addDoc(winnersCollection, payload); }catch(e){ console.warn('winner save → offline',e);} }
-      allWinners=[...allWinners,{...payload,id:`local_${Date.now()}`}];
-      localStorage.setItem('quiz_winners', JSON.stringify(allWinners));
+      try { await postNetlifyForm('winners', { name: payload.name || '', mobile: payload.mobile || '', timestamp: new Date().toISOString() }); }
+      catch(e) { console.warn('winner save failed', e); }
+      allWinners=[{...payload, timestamp:{seconds:Math.floor(Date.now()/1000)}}, ...allWinners];
+      try{ localStorage.setItem('quiz_winners_local', JSON.stringify(allWinners)); }catch{}
     }
 
     // Sections
@@ -296,8 +298,8 @@
     // AU mobile validation
     function normaliseAuMobile(input){
       const digits=input.replace(/[^\d+]/g,'');
-      const auMobileRegex=/^(?:\+?61|0)4\d{8}$/;
-      if(!auMobileRegex.test(digits.replace(/\s/g,''))) return null;
+      const auMobileRegex=/^(?:\+?61|0)4\\d{8}$/;
+      if(!auMobileRegex.test(digits.replace(/\\s/g,''))) return null;
       if(digits.startsWith('0')) return '+61'+digits.slice(1);
       if(digits.startsWith('61')) return '+'+digits;
       return digits;
@@ -320,7 +322,7 @@
         const card=document.createElement('div');
         card.className='p-4 bg-white rounded-xl shadow-md cursor-pointer text-center hover:shadow-lg hover:bg-yellow-50 hover:-translate-y-1 transition-all';
         card.onclick=()=>selectAvatar(idx);
-        card.innerHTML=`<i class="fa-solid fa-${a.icon} text-4xl text-orange-500 mb-2"></i><p class="font-semibold text-gray-700">${a.name}</p>`;
+        card.innerHTML=\`<i class="fa-solid fa-\${a.icon} text-4xl text-orange-500 mb-2"></i><p class="font-semibold text-gray-700">\${a.name}</p>\`;
         container.appendChild(card);
       });
     };
@@ -330,7 +332,7 @@
       AVATARS.forEach((a,idx)=>{
         const btn=document.createElement('button');
         btn.className='p-3 bg-white border rounded-xl shadow-sm hover:shadow-md hover:bg-yellow-50 transition text-center';
-        btn.innerHTML=`<i class="fa-solid fa-${a.icon} text-2xl text-orange-500 mb-1"></i><div class="font-semibold text-gray-700">${a.name}</div>`;
+        btn.innerHTML=\`<i class="fa-solid fa-\${a.icon} text-2xl text-orange-500 mb-1"></i><div class="font-semibold text-gray-700">\${a.name}</div>\`;
         btn.onclick=()=>{ selectAvatar(idx); closeAvatarModal(); };
         container.appendChild(btn);
       });
@@ -338,7 +340,7 @@
 
     window.selectAvatar = idx => {
       selectedAvatarIndex = idx + 1;
-      document.getElementById('selectedAvatarDisplay').innerText = `Avatar: ${AVATARS[idx].name}`;
+      document.getElementById('selectedAvatarDisplay').innerText = \`Avatar: \${AVATARS[idx].name}\`;
       showSection('quizSection');
     };
 
@@ -352,8 +354,7 @@
       if(isNaN(qn)||qn<1||qn>10){ showModal('error','Invalid Question','Please enter a number between 1 and 10.',[{text:'Okay'}]); return; }
       if(!selectedAvatarIndex){ showModal('error','No Avatar','Please select an avatar first.',[{text:'Choose Avatar', class:'bg-orange-500 hover:bg-orange-600', callback:()=>{ showSection('avatarSection'); }}]); return; }
 
-      // Prevent repeating a correct (avatar, question)
-      const key = `${selectedAvatarIndex}-${qn}`;
+      const key = \`\${selectedAvatarIndex}-\${qn}\`;
       if (correctAnsweredSet.has(key)) {
         showModal('error','Already Answered','You have already answered this question correctly for this avatar. Please choose a different question number.',[{text:'Okay'}]);
         return;
@@ -361,14 +362,14 @@
 
       const data=getQuestion(selectedAvatarIndex, qn);
       const area=document.getElementById('questionArea');
-      if(!data){ area.innerHTML=`<p class="text-center text-red-500 font-semibold">❌ Question not set for this avatar/number yet.</p>`; return; }
+      if(!data){ area.innerHTML=\`<p class="text-center text-red-500 font-semibold">❌ Question not set for this avatar/number yet.</p>\`; return; }
 
-      let html=`<p class="text-lg font-semibold text-center mb-4">${data.question}</p><div class="space-y-3">`;
+      let html=\`<p class="text-lg font-semibold text-center mb-4">\${data.question}</p><div class="space-y-3">\`;
       data.options.forEach((opt,i)=>{
         const label=String.fromCharCode(65+i);
-        html+=`<button id="ans-${label}" onclick="checkAnswer(this,'${label}','${data.answer}',${selectedAvatarIndex},${qn})" class="w-full text-left p-3 bg-white border-2 border-orange-200 rounded-lg hover:bg-orange-100 hover:border-orange-400 transition-all">${label}) ${opt}</button>`;
+        html+=\`<button id="ans-\${label}" onclick="checkAnswer(this,'\${label}','\${data.answer}',\${selectedAvatarIndex},\${qn})" class="w-full text-left p-3 bg-white border-2 border-orange-200 rounded-lg hover:bg-orange-100 hover:border-orange-400 transition-all">\${label}) \${opt}</button>\`;
       });
-      html+=`</div>`;
+      html+=\`</div>\`;
       area.innerHTML=html;
     };
 
@@ -376,7 +377,6 @@
       document.querySelectorAll('#questionArea button').forEach(b=>b.disabled=true);
       const isCorrect = userAns===correctAns;
 
-      // Visual feedback WITHOUT revealing the correct answer on wrong attempts
       if(isCorrect){
         btn.classList.add('!bg-green-500','text-white','!border-green-700','font-bold'); btn.innerHTML+=' <i class="fa-solid fa-check"></i>';
       } else {
@@ -387,19 +387,17 @@
         await saveAttemptDoc({
           name: currentUserName, mobile: currentUserMobile,
           avatar: AVATARS[avatarIdx-1]?.name || '', avatarIndex: avatarIdx,
-          questionNumber: qNum, selectedAnswer: userAns, correct: isCorrect,
-          timestamp: offlineMode ? { seconds: Math.floor(Date.now()/1000) } : serverTimestamp()
+          questionNumber: qNum, selectedAnswer: userAns, correct: isCorrect
         });
       }catch(e){ console.error('Save error', e); }
 
       setTimeout(()=>{
         if(isCorrect){
-          // Mark this (avatar, question) as correctly answered
-          correctAnsweredSet.add(`${avatarIdx}-${qNum}`);
+          correctAnsweredSet.add(\`\${avatarIdx}-\${qNum}\`);
           correctStreak++; updateStreakTracker(correctStreak);
           resetQuestionUI();
           if(correctStreak>=3){ handleWin(); }
-          else { openAvatarModal(); } // prompt to (re)select avatar for next question
+          else { openAvatarModal(); }
         } else {
           correctStreak=0; updateStreakTracker(0);
           showModal('loss','Not quite…','Try another question number.',[{text:'Okay', class:'bg-orange-500 hover:bg-orange-600', callback:()=>{ resetQuestionUI(); }}]);
@@ -410,12 +408,13 @@
     function resetQuestionUI(){ document.getElementById('questionArea').innerHTML=''; document.getElementById('questionNumberInput').value=''; }
 
     async function handleWin(){
-      try{ await saveWinnerDoc({name:currentUserName,mobile:currentUserMobile,timestamp:offlineMode?{seconds:Math.floor(Date.now()/1000)}:serverTimestamp()}); }catch{}
-      launchFireworks(); try{ await winSound.play(); }catch{}
+      try{ await saveWinnerDoc({name:currentUserName,mobile:currentUserMobile}); }catch{}
+      try{ await winSound.play(); }catch{}
       showModal('win','🪷 You Won! 🪷','Hare Krishna! Show this to a youth member for your prize.',[
         { text:'<i class="fa-brands fa-instagram"></i> Follow Us', isLink:true, href:'https://www.instagram.com/iskcon_ns_youth/', class:'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600' },
         { text:'Play Again', class:'bg-gray-500 hover:bg-gray-600', callback:restartGame }
       ]);
+      launchFireworks();
     }
 
     function updateStreakTracker(streak){
@@ -425,7 +424,7 @@
     }
     function restartGame(){
       correctStreak=0; selectedAvatarIndex=null; currentUserName=""; currentUserMobile="";
-      correctAnsweredSet = new Set(); // Reset correct answers on restart
+      correctAnsweredSet = new Set();
       document.getElementById('selectedAvatarDisplay').innerText='';
       document.getElementById('fullName').value=''; document.getElementById('mobileNumber').value='';
       resetQuestionUI(); showSection('userSection');
@@ -435,47 +434,54 @@
     window.showAdminLogin=()=>{
       showModal('prompt','Admin Access','Enter the admin password.',[
         { text:'Login', class:'bg-blue-500 hover:bg-blue-600', callback:pwd=>{
-          if(pwd===ADMIN_PASSWORD){ showResultsTable(); showSection('adminSection'); }
+          if(pwd===ADMIN_PASSWORD){
+            try{
+              const a=JSON.parse(localStorage.getItem('quiz_attempts_local')||'[]');
+              const w=JSON.parse(localStorage.getItem('quiz_winners_local')||'[]');
+              if(a?.length) allAttempts=a; if(w?.length) allWinners=w;
+            }catch{}
+            showResultsTable(); showSection('adminSection');
+          }
           else{ showModal('error','Access Denied','Incorrect password.',[{text:'Okay'}]); }
         }}
       ]);
     };
     window.downloadResults=()=>{
       const hasData=(allAttempts?.length||0)+(allWinners?.length||0)>0;
-      if(!hasData){ showModal('error','No Data','No quiz results to download yet.',[{text:'Okay'}]); return; }
+      if(!hasData){ showModal('error','No Data','No local results to download on this device yet.',[{text:'Okay'}]); return; }
       const attemptHeaders=["Name","Mobile","Avatar","AvatarIdx","Q#","Correct","Time"];
       const attemptRows=(allAttempts||[]).map(r=>{
-        const time=r.timestamp? new Date((r.timestamp.seconds||Math.floor(Date.now()/1000))*1000).toLocaleString(): 'N/A';
+        const time=r.timestamp? new Date((r.timestamp.seconds||Math.floor(Date.now()/1000))*1000).toLocaleString(): new Date().toLocaleString();
         return [r.name,r.mobile,r.avatar,r.avatarIndex||'',r.questionNumber||'',r.correct?'Yes':'No',time];
       });
       const winnerHeaders=["Name","Mobile","Time"];
       const winnerRows=(allWinners||[]).map(w=>{
-        const time=w.timestamp? new Date((w.timestamp.seconds||Math.floor(Date.now()/1000))*1000).toLocaleString(): 'N/A';
+        const time=w.timestamp? new Date((w.timestamp.seconds||Math.floor(Date.now()/1000))*1000).toLocaleString(): new Date().toLocaleString();
         return [w.name,w.mobile,time];
       });
       const csvAttempts=[attemptHeaders,...attemptRows].map(r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(",")).join("\n");
       const csvWinners=[winnerHeaders,...winnerRows].map(r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(",")).join("\n");
       const final="Attempts\n"+csvAttempts+"\n\nWinners\n"+csvWinners;
-      const blob=new Blob([final],{type:'text/csv'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='quiz_results.csv'; a.click();
+      const blob=new Blob([final],{type:'text/csv'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='quiz_results_local.csv'; a.click();
     };
     function showResultsTable(){
       const c=document.getElementById('resultTableContainer'); let html="";
       if(allAttempts && allAttempts.length){
-        html+="<h3 class='text-xl font-bold mb-2 text-gray-700'>Quiz Attempts</h3><table class='w-full border-collapse'><thead class='bg-gray-200'><tr><th class='p-2 border'>Name</th><th class='p-2 border'>Mobile</th><th class='p-2 border'>Avatar</th><th class='p-2 border'>AvatarIdx</th><th class='p-2 border'>Q#</th><th class='p-2 border'>Correct</th></tr></thead><tbody>";
-        [...allAttempts].sort((a,b)=>(b.timestamp?.seconds||0)-(a.timestamp?.seconds||0)).forEach(r=>{
+        html+="<h3 class='text-xl font-bold mb-2 text-gray-700'>Quiz Attempts (this device)</h3><table class='w-full border-collapse'><thead class='bg-gray-200'><tr><th class='p-2 border'>Name</th><th class='p-2 border'>Mobile</th><th class='p-2 border'>Avatar</th><th class='p-2 border'>AvatarIdx</th><th class='p-2 border'>Q#</th><th class='p-2 border'>Correct</th></tr></thead><tbody>";
+        [...allAttempts].forEach(r=>{
           html+=`<tr class='border-b'><td class='p-2 border'>${r.name||''}</td><td class='p-2 border'>${r.mobile||''}</td><td class='p-2 border'>${r.avatar||''}</td><td class='p-2 border'>${r.avatarIndex||''}</td><td class='p-2 border'>${r.questionNumber||''}</td><td class='p-2 border ${r.correct?'text-green-600':'text-red-600'}'>${r.correct?'Yes':'No'}</td></tr>`;
         });
         html+="</tbody></table>";
       }
       if(allWinners && allWinners.length){
-        html+="<h3 class='text-xl font-bold mt-6 mb-2 text-gray-700'>🎉 Winners List</h3><table class='w-full border-collapse'><thead class='bg-gray-200'><tr><th class='p-2 border'>Name</th><th class='p-2 border'>Mobile</th><th class='p-2 border'>Time</th></tr></thead><tbody>";
-        [...allWinners].sort((a,b)=>(b.timestamp?.seconds||0)-(a.timestamp?.seconds||0)).forEach(w=>{
-          const time=w.timestamp? new Date((w.timestamp.seconds||Math.floor(Date.now()/1000))*1000).toLocaleString(): 'N/A';
+        html+="<h3 class='text-xl font-bold mt-6 mb-2 text-gray-700'>🎉 Winners (this device)</h3><table class='w-full border-collapse'><thead class='bg-gray-200'><tr><th class='p-2 border'>Name</th><th class='p-2 border'>Mobile</th><th class='p-2 border'>Time</th></tr></thead><tbody>";
+        [...allWinners].forEach(w=>{
+          const time=w.timestamp? new Date((w.timestamp.seconds||Math.floor(Date.now()/1000))*1000).toLocaleString(): '—';
           html+=`<tr class='border-b'><td class='p-2 border'>${w.name||''}</td><td class='p-2 border'>${w.mobile||''}</td><td class='p-2 border'>${time}</td></tr>`;
         });
         html+="</tbody></table>";
       }
-      c.innerHTML = html || "<p>No results yet. Data will appear here.</p>";
+      c.innerHTML = html || "<p>No local results yet. Submissions are in Netlify Forms.</p>";
     }
 
     // Modal helpers
@@ -498,11 +504,6 @@
     function closeAvatarModal(){ document.getElementById('avatarModal').classList.remove('active'); }
     window.closeAvatarModal = closeAvatarModal;
 
-    function showToast(msg){
-      const t=document.createElement('div');
-      t.className='fixed bottom-4 left-1/2 -translate-x-1/2 bg-black text-white text-sm px-3 py-2 rounded-lg shadow-lg z-50';
-      t.innerText=msg; document.body.appendChild(t); setTimeout(()=>t.remove(), 2200);
-    }
     function launchFireworks(){
       const c=document.getElementById('app-container'); const rect=c.getBoundingClientRect();
       for(let i=0;i<36;i++){
@@ -514,7 +515,7 @@
     }
 
     // Bootstrap
-    window.onload=()=>{ renderAvatarButtons(); renderAvatarModal(); initializeFirebase(); };
+    window.onload=()=>{ renderAvatarButtons(); renderAvatarModal(); };
   </script>
 </body>
 </html>

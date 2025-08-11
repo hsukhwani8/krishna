@@ -372,18 +372,31 @@
       localStorage.setItem('quiz_attempts_local', JSON.stringify(allAttempts));
       if (!ok) { document.getElementById('offlineBanner').classList.add('active'); }
 
-      setTimeout(()=>{
-        if(isCorrect){
-          correctAnsweredSet.add(`${avatarIdx}-${qNum}`);
-          correctStreak++; updateStreakTracker(correctStreak);
-          resetQuestionUI();
-          if(correctStreak>=3){ handleWin(); }
-          else { openAvatarModal(); }
-        } else {
-          correctStreak=0; updateStreakTracker(0);
-          showModal('loss','Not quite…','Try another question number.',[{text:'Okay', class:'bg-orange-500 hover:bg-orange-600', callback:()=>{ resetQuestionUI(); }}]);
+setTimeout(()=>{
+  if (isCorrect) {
+    correctAnsweredSet.add(`${avatarIdx}-${qNum}`);
+    correctStreak++; updateStreakTracker(correctStreak);
+    resetQuestionUI();
+    if (correctStreak >= 3) { handleWin(); }
+    else { openAvatarModal(); }
+  } else {
+    // End the run on the first wrong answer
+    correctStreak = 0; updateStreakTracker(0);
+    resetQuestionUI();
+    showModal(
+      'loss',
+      'Good effort!',
+      'Thanks for playing! Please show this screen to a youth member and consider buying a book to learn more. You can try again afterwards.',
+      [
+        { text:'Finish', class:'bg-orange-500 hover:bg-orange-600', callback: () => {
+            // send them back to the start
+            restartGame();
+          }
         }
-      },900);
+      ]
+    );
+  }
+}, 900);
     };
 
     function resetQuestionUI(){ document.getElementById('questionArea').innerHTML=''; document.getElementById('questionNumberInput').value=''; }

@@ -12,7 +12,7 @@
   <style>
     body{font-family:'Hind',sans-serif;background:linear-gradient(135deg,#1a2a6c,#b21f1f,#fdbb2d);background-size:400% 400%;animation:gradientBG 15s ease infinite;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem}
     @keyframes gradientBG{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
-    .section{display:none}.section.active{display:block;animation:fadeIn .4s ease}
+    .section{display:none}.section.active{display:block;animation:fadeIn .3s ease}
     @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
     .modal-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:40;align-items:center;justify-content:center}
     .modal-backdrop.active{display:flex}
@@ -117,25 +117,27 @@
   </div>
 
   <script>
-    /* ====== CONFIG ====== */
-    const GOOGLE_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxDvx2ppKkR3791D6z-7rzO8pY54J-45YaiIE8lkZj94vFMjGSa6thGgiNIKAaYjSGeyA/exec';
+    /* ========= CONFIG ========= */
+    const GOOGLE_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxDvx2ppKkR3791D6z-7rzO8pY54J-45YaiIE8lkZj94vFMjGSa6thGgiNIKAaYjSGeyA/exec'; // <-- replace if needed
     const ADMIN_PASSWORD = "gopinath123";
+    const FEEDBACK_DELAY_MS = 120; // tiny pause so users see the green/red flash
 
+    // Use emoji for Kurma & Narasimha (reliable everywhere), FA for the rest
     const AVATARS = [
-      { name: "Matsya", icon: "fish" },
-      { name: "Kurma", icon: "🐢" },
-      { name: "Varaha", icon: "hippo" },
-      { name: "Narasimha", icon: "🦁" },
-      { name: "Vamana", icon: "child-reaching" },
-      { name: "Parashurama", icon: "gavel" },
-      { name: "Rama", icon: "bullseye" },
-      { name: "Krishna", icon: "feather-pointed" },
-      { name: "Buddha", icon: "om" },
-      { name: "Kalki", icon: "horse" }
+      { name: "Matsya",     fa: "fish" },
+      { name: "Kurma",      emoji: "🐢" },
+      { name: "Varaha",     fa: "hippo" },
+      { name: "Narasimha",  emoji: "🦁" },
+      { name: "Vamana",     fa: "child-reaching" },
+      { name: "Parashurama",fa: "gavel" },
+      { name: "Rama",       fa: "bullseye" },
+      { name: "Krishna",    fa: "feather-pointed" },
+      { name: "Buddha",     fa: "om" },
+      { name: "Kalki",      fa: "horse" }
     ];
 
-    /* ====== QUESTIONS ====== */
-    const RAW_QUESTIONS = {/* ——— your same RAW_QUESTIONS object exactly as you sent ——— */ 
+    /* ========= QUESTIONS (same as yours) ========= */
+    const RAW_QUESTIONS = { /* ——— unchanged ——— */ 
       11:{question:"What is the primary purpose of Lord Vishnu’s Matsya (fish) incarnation?",options:["To kill demons on land","To save the Vedas and protect the righteous","To create new worlds","To teach humans how to fish"],answer:"B"},
       12:{question:"Who was the great king that received protection from the Matsya incarnation?",options:["King Harishchandra","King Satyavrata (Śrāddhadeva)","King Janamejaya","King Dhruva"],answer:"B"},
       13:{question:"How did the fish appear to King Satyavrata?",options:["As a small, humble fish requesting protection","As a large, horned, eight million miles long fish","As a divine bird","As a lion"],answer:"B"},
@@ -238,7 +240,7 @@
       1010:{question:"Who is Kalki?",options:["A powerful king","A prophet","The final avatar of Vishnu","A sage"],answer:"C"}
     };
 
-    /* Build QUESTION_BANK with a robust parser (works for avatar 10 too) */
+    /* Build QUESTION_BANK (works for avatar 10) */
     const QUESTION_BANK = {}; for (let i=1;i<=10;i++) QUESTION_BANK[i] = new Array(10).fill(null);
     Object.keys(RAW_QUESTIONS).forEach(k=>{
       const s = String(k);
@@ -248,31 +250,51 @@
       if (avatarIdx>=1 && avatarIdx<=10 && qNum>=1 && qNum<=10) QUESTION_BANK[avatarIdx][qNum-1] = qObj;
     });
 
-    /* ====== State ====== */
+    /* ========= State ========= */
     let selectedAvatarIndex=null, correctStreak=0;
     let currentUserName="", currentUserMobile="";
     let allAttempts=[], allWinners=[];
-    let offlineMode=false;
     const winSound = new Audio("https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3");
     let correctAnsweredSet = new Set();
 
-    /* ====== Sheets POST (form-encoded, no-cors) ====== */
-    async function postToSheet(type, payload){
-      const body = new URLSearchParams();
-      body.append('type', type);
-      Object.entries(payload).forEach(([k,v]) => body.append(k, String(v ?? '')));
+    /* ========= Sheets logging (instant / fire-and-forget) ========= */
+    function postToSheet(type, payload){
       try{
-        await fetch(GOOGLE_WEB_APP_URL, { method:'POST', mode:'no-cors', body });
-        return true;
-      }catch(err){
-        console.warn('Sheet POST failed, switching to offline mode', err);
-        offlineMode=true; document.getElementById('offlineBanner').classList.add('active');
-        return false;
+        const params = new URLSearchParams();
+        params.append('type', type);
+        Object.entries(payload).forEach(([k,v])=>params.append(k, String(v ?? '')));
+        const encoded = params.toString();
+
+        // Try sendBeacon first (non-blocking, very reliable for small payloads)
+        const ok = navigator.sendBeacon?.(
+          GOOGLE_WEB_APP_URL,
+          new Blob([encoded], { type: 'application/x-www-form-urlencoded;charset=UTF-8' })
+        );
+
+        if (!ok) {
+          // Fallback fire-and-forget fetch (no await, no-cors)
+          fetch(GOOGLE_WEB_APP_URL, { method:'POST', mode:'no-cors',
+            headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'},
+            body: encoded
+          }).catch(()=>{ /* ignore */ });
+        }
+      }catch(e){
+        // Last resort: mark offline banner; local storage still has a copy
+        document.getElementById('offlineBanner').classList.add('active');
       }
     }
 
-    /* ====== UI helpers ====== */
-    window.showSection = id => { document.querySelectorAll('.section').forEach(s=>s.classList.remove('active')); document.getElementById(id)?.classList.add('active'); };
+    /* ========= UI helpers ========= */
+    window.showSection = id => {
+      document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+      document.getElementById(id)?.classList.add('active');
+    };
+
+    function iconHtml(a, big=true){
+      const size = big ? 'text-4xl' : 'text-2xl';
+      if (a.emoji) return `<span class="${size}">${a.emoji}</span>`;
+      return `<i class="fa-solid fa-${a.fa} ${size} text-orange-500"></i>`;
+    }
 
     function normaliseAuMobile(input){
       const digits=input.replace(/[^\d+]/g,'');
@@ -286,9 +308,13 @@
     window.saveUserInfo = () => {
       const name=document.getElementById('fullName').value.trim();
       const mobileRaw=document.getElementById('mobileNumber').value.trim();
-      if(!name||!mobileRaw){ showModal('error','Incomplete Details','Please enter both your name and mobile number.',[{text:'Okay'}]); return; }
+      if(!name||!mobileRaw){
+        showModal('error','Incomplete Details','Please enter both your name and mobile number.',[{text:'Okay'}]); return;
+      }
       const normalised=normaliseAuMobile(mobileRaw);
-      if(!normalised){ showModal('error','Invalid Number','Please enter a valid Australian mobile (04XXXXXXXX or +614XXXXXXXX).',[{text:'Okay'}]); return; }
+      if(!normalised){
+        showModal('error','Invalid Number','Please enter a valid Australian mobile (04XXXXXXXX or +614XXXXXXXX).',[{text:'Okay'}]); return;
+      }
       currentUserName=name; currentUserMobile=normalised;
       showSection('avatarSection');
     };
@@ -299,7 +325,7 @@
         const card=document.createElement('div');
         card.className='p-4 bg-white rounded-xl shadow-md cursor-pointer text-center hover:shadow-lg hover:bg-yellow-50 hover:-translate-y-1 transition-all';
         card.onclick=()=>selectAvatar(idx);
-        card.innerHTML=`<i class="fa-solid fa-${a.icon} text-4xl text-orange-500 mb-2"></i><p class="font-semibold text-gray-700">${a.name}</p>`;
+        card.innerHTML=`${iconHtml(a,true)}<p class="font-semibold text-gray-700 mt-1">${a.name}</p>`;
         container.appendChild(card);
       });
     };
@@ -309,7 +335,7 @@
       AVATARS.forEach((a,idx)=>{
         const btn=document.createElement('button');
         btn.className='p-3 bg-white border rounded-xl shadow-sm hover:shadow-md hover:bg-yellow-50 transition text-center';
-        btn.innerHTML=`<i class="fa-solid fa-${a.icon} text-2xl text-orange-500 mb-1"></i><div class="font-semibold text-gray-700">${a.name}</div>`;
+        btn.innerHTML=`${iconHtml(a,false)}<div class="font-semibold text-gray-700 mt-1">${a.name}</div>`;
         btn.onclick=()=>{ selectAvatar(idx); closeAvatarModal(); };
         container.appendChild(btn);
       });
@@ -329,8 +355,10 @@
     window.showQuestion = () => {
       const qn=parseInt(document.getElementById('questionNumberInput').value,10);
       if(isNaN(qn)||qn<1||qn>10){ showModal('error','Invalid Question','Please enter a number between 1 and 10.',[{text:'Okay'}]); return; }
-      if(!selectedAvatarIndex){ showModal('error','No Avatar','Please select an avatar first.',[{text:'Choose Avatar', class:'bg-orange-500 hover:bg-orange-600', callback:()=>{ showSection('avatarSection'); }}]); return; }
-
+      if(!selectedAvatarIndex){
+        showModal('error','No Avatar','Please select an avatar first.',[
+          {text:'Choose Avatar', class:'bg-orange-500 hover:bg-orange-600', callback:()=>{ showSection('avatarSection'); }}]); return;
+      }
       const key = `${selectedAvatarIndex}-${qn}`;
       if (correctAnsweredSet.has(key)) {
         showModal('error','Already Answered','You already answered this one correctly for this avatar. Choose a different number.',[{text:'Okay'}]); return;
@@ -349,7 +377,7 @@
       area.innerHTML=html;
     };
 
-    window.checkAnswer = async (btn, userAns, correctAns, avatarIdx, qNum) => {
+    window.checkAnswer = (btn, userAns, correctAns, avatarIdx, qNum) => {
       document.querySelectorAll('#questionArea button').forEach(b=>b.disabled=true);
       const isCorrect = userAns===correctAns;
 
@@ -359,55 +387,45 @@
         btn.classList.add('!bg-red-500','text-white','!border-red-700','font-bold'); btn.innerHTML+=' <i class="fa-solid fa-xmark"></i>';
       }
 
-      // Persist to Google Sheets (and also to local storage for Admin view)
+      // Log to Google Sheets instantly (non-blocking) + local copy
       const attemptPayload = {
         name: currentUserName, mobile: currentUserMobile,
         avatar: AVATARS[avatarIdx-1]?.name || '', avatarIndex: avatarIdx,
         questionNumber: qNum, selectedAnswer: userAns, correct: isCorrect
       };
-      const ok = await postToSheet('attempt', attemptPayload);
-
-      // Always keep local copy for download/admin
+      postToSheet('attempt', attemptPayload);
       allAttempts.push({ ...attemptPayload, timestamp: Date.now() });
       localStorage.setItem('quiz_attempts_local', JSON.stringify(allAttempts));
-      if (!ok) { document.getElementById('offlineBanner').classList.add('active'); }
 
-setTimeout(()=>{
-  if (isCorrect) {
-    correctAnsweredSet.add(`${avatarIdx}-${qNum}`);
-    correctStreak++; updateStreakTracker(correctStreak);
-    resetQuestionUI();
-    if (correctStreak >= 3) { handleWin(); }
-    else { openAvatarModal(); }
-  } else {
-    // End the run on the first wrong answer
-    correctStreak = 0; updateStreakTracker(0);
-    resetQuestionUI();
-    showModal(
-      'loss',
-      'Good effort!',
-      'Thanks for playing! Please show this screen to a youth member and consider buying a book to learn more. You can try again afterwards.',
-      [
-        { text:'Finish', class:'bg-orange-500 hover:bg-orange-600', callback: () => {
-            // send them back to the start
-            restartGame();
-          }
+      setTimeout(()=>{
+        if (isCorrect) {
+          correctAnsweredSet.add(`${avatarIdx}-${qNum}`);
+          correctStreak++; updateStreakTracker(correctStreak);
+          resetQuestionUI();
+          if (correctStreak >= 3) { handleWin(); }
+          else { openAvatarModal(); }
+        } else {
+          // End the run on the first wrong answer
+          correctStreak = 0; updateStreakTracker(0);
+          resetQuestionUI();
+          showModal(
+            'loss',
+            'Good effort!',
+            'Thanks for playing! Please show this screen to a youth member and consider buying a book to learn more. You can try again afterwards.',
+            [{ text:'Finish', class:'bg-orange-500 hover:bg-orange-600', callback: restartGame }]
+          );
         }
-      ]
-    );
-  }
-}, 900);
+      }, FEEDBACK_DELAY_MS);
     };
 
     function resetQuestionUI(){ document.getElementById('questionArea').innerHTML=''; document.getElementById('questionNumberInput').value=''; }
 
     async function handleWin(){
       const winnerPayload = { name: currentUserName, mobile: currentUserMobile };
-      const ok = await postToSheet('winner', winnerPayload);
+      postToSheet('winner', winnerPayload);
 
       allWinners.push({ ...winnerPayload, timestamp: Date.now() });
       localStorage.setItem('quiz_winners_local', JSON.stringify(allWinners));
-      if (!ok) { document.getElementById('offlineBanner').classList.add('active'); }
 
       launchFireworks(); try{ await winSound.play(); }catch{}
       showModal('win','🪷 You Won! 🪷','Hare Krishna! Show this to a youth member for your prize.',[

@@ -20,6 +20,14 @@
     #offlineBanner{display:none}#offlineBanner.active{display:block}
     .firework{position:absolute;width:10px;height:10px;border-radius:50%;animation:fireworks 1s ease-out forwards;pointer-events:none}
     @keyframes fireworks{0%{transform:scale(0);opacity:1}100%{transform:scale(3);opacity:0}}
+
+    /* Interstitial overlay */
+    #interstitial{display:none;position:fixed;inset:0;z-index:50;backdrop-filter:blur(3px)}
+    #interstitial.active{display:flex}
+    .spin{animation:spin 1s linear infinite}
+    @keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+    .pulse{animation:pulse 1.4s ease-in-out infinite}
+    @keyframes pulse{0%{transform:scale(.95)}50%{transform:scale(1)}100%{transform:scale(.95)}}
   </style>
 </head>
 <body>
@@ -66,10 +74,13 @@
             <h2 class="text-3xl font-semibold text-gray-800">The Quiz</h2>
             <p id="selectedAvatarDisplay" class="text-orange-600 font-semibold"></p>
           </div>
-          <div id="streak-tracker" class="flex gap-2">
-            <i class="fa-solid fa-feather-pointed text-gray-300 text-2xl"></i>
-            <i class="fa-solid fa-feather-pointed text-gray-300 text-2xl"></i>
-            <i class="fa-solid fa-feather-pointed text-gray-300 text-2xl"></i>
+          <div>
+            <div id="streak-tracker" class="flex gap-2">
+              <i class="fa-solid fa-feather-pointed text-gray-300 text-2xl"></i>
+              <i class="fa-solid fa-feather-pointed text-gray-300 text-2xl"></i>
+              <i class="fa-solid fa-feather-pointed text-gray-300 text-2xl"></i>
+            </div>
+            <p id="streak-msg" class="text-xs text-gray-500 text-right mt-1"></p>
           </div>
         </div>
         <div class="bg-gray-100 p-4 rounded-lg shadow-inner mb-6">
@@ -89,6 +100,19 @@
         <div id="resultTableContainer" class="text-sm overflow-x-auto"></div>
       </div>
     </main>
+  </div>
+
+  <!-- Interstitial overlay -->
+  <div id="interstitial" class="items-center justify-center">
+    <div class="bg-white/95 rounded-2xl shadow-2xl p-6 w-full max-w-sm text-center border border-orange-200 pulse">
+      <div id="interIcon" class="text-5xl mb-3"></div>
+      <h3 id="interTitle" class="text-2xl font-bold text-gray-800 mb-1"></h3>
+      <p id="interSub" class="text-gray-600"></p>
+      <div class="mt-4 flex items-center justify-center gap-2 text-orange-600">
+        <i class="fa-solid fa-circle-notch spin"></i>
+        <span id="interCountdown" class="text-sm">3</span>
+      </div>
+    </div>
   </div>
 
   <!-- Generic modal -->
@@ -305,6 +329,23 @@
       return digits;
     }
 
+    // Generic interstitial with countdown
+    function showInterstitial({title, sub, icon, seconds=3, onDone}){
+      const wrap=document.getElementById('interstitial');
+      const iconEl=document.getElementById('interIcon');
+      const tEl=document.getElementById('interTitle');
+      const sEl=document.getElementById('interSub');
+      const cEl=document.getElementById('interCountdown');
+      iconEl.innerHTML = icon;
+      tEl.textContent = title;
+      sEl.textContent = sub || '';
+      let remaining = seconds;
+      cEl.textContent = remaining;
+      wrap.classList.add('active');
+      const iv=setInterval(()=>{remaining--;cEl.textContent=remaining;},1000);
+      setTimeout(()=>{clearInterval(iv);wrap.classList.remove('active');onDone&&onDone();},seconds*1000);
+    }
+
     window.saveUserInfo = () => {
       const name=document.getElementById('fullName').value.trim();
       const mobileRaw=document.getElementById('mobileNumber').value.trim();
@@ -316,7 +357,14 @@
         showModal('error','Invalid Number','Please enter a valid Australian mobile (04XXXXXXXX or +614XXXXXXXX).',[{text:'Okay'}]); return;
       }
       currentUserName=name; currentUserMobile=normalised;
-      showSection('avatarSection');
+      // NEW: fun interstitial before avatar selection
+      showInterstitial({
+        title:'Spin the Dashavatara Wheel!',
+        sub:'Tap to choose your avatar in a moment…',
+        icon:'<i class="fa-solid fa-dharmachakra text-orange-500"></i>',
+        seconds:3,
+        onDone:()=>{ showSection('avatarSection'); }
+      });
     };
 
     window.renderAvatarButtons = () => {
@@ -344,7 +392,14 @@
     window.selectAvatar = idx => {
       selectedAvatarIndex = idx + 1;
       document.getElementById('selectedAvatarDisplay').innerText = `Avatar: ${AVATARS[idx].name}`;
-      showSection('quizSection');
+      // NEW: interstitial before number wheel / quiz
+      showInterstitial({
+        title:'Now spin the number wheel!',
+        sub:'You’ll get a question number (1–10)…',
+        icon:'<i class="fa-solid fa-shuffle text-orange-500"></i>',
+        seconds:2,
+        onDone:()=>{ showSection('quizSection'); }
+      });
     };
 
     function getQuestion(avatarIdx,qNum){
@@ -381,10 +436,14 @@
       document.querySelectorAll('#questionArea button').forEach(b=>b.disabled=true);
       const isCorrect = userAns===correctAns;
 
+      // visual feedback on selected
       if(isCorrect){
         btn.classList.add('!bg-green-500','text-white','!border-green-700','font-bold'); btn.innerHTML+=' <i class="fa-solid fa-check"></i>';
       } else {
         btn.classList.add('!bg-red-500','text-white','!border-red-700','font-bold'); btn.innerHTML+=' <i class="fa-solid fa-xmark"></i>';
+        // highlight correct option too
+        const correctBtn=document.getElementById('ans-'+correctAns);
+        if(correctBtn){ correctBtn.classList.add('!bg-green-100','!border-green-500'); }
       }
 
       // Log to Google Sheets instantly (non-blocking) + local copy
@@ -401,17 +460,28 @@
         if (isCorrect) {
           correctAnsweredSet.add(`${avatarIdx}-${qNum}`);
           correctStreak++; updateStreakTracker(correctStreak);
+          // NEW: encouraging interstitial + avatar picker
+          const remaining = 3 - correctStreak;
+          if (remaining>0){
+            showInterstitial({
+              title: remaining===2? 'Great work!': 'Awesome!',
+              sub: remaining===2? "Let’s get 2 more questions and win!": 'Just 1 more to win!',
+              icon:'<i class="fa-solid fa-thumbs-up text-green-500"></i>',
+              seconds:2,
+              onDone:()=>{ openAvatarModal(); }
+            });
+          }
           resetQuestionUI();
           if (correctStreak >= 3) { handleWin(); }
-          else { openAvatarModal(); }
         } else {
-          // End the run on the first wrong answer
+          // End the run on the first wrong answer – show correct answer and exit
+          const correctOptText = document.getElementById('ans-'+correctAns)?.textContent || '';
           correctStreak = 0; updateStreakTracker(0);
           resetQuestionUI();
           showModal(
             'loss',
             'Good effort!',
-            'Thanks for playing! Please show this screen to a youth member and consider buying a book to learn more. You can try again afterwards.',
+            `Correct answer: ${correctOptText}. Thanks for playing! Please show this screen to a youth member and consider buying a book to learn more. You can try again afterwards.`,
             [{ text:'Finish', class:'bg-orange-500 hover:bg-orange-600', callback: restartGame }]
           );
         }
@@ -438,6 +508,8 @@
       document.querySelectorAll('#streak-tracker i').forEach((icon,i)=>{
         if(i<streak) icon.classList.replace('text-gray-300','text-yellow-400'); else icon.classList.replace('text-yellow-400','text-gray-300');
       });
+      const msg=document.getElementById('streak-msg');
+      msg.textContent = streak===0 ? '' : (streak===1 ? '2 more to win' : (streak===2 ? '1 more to win' : 'Victory!'));
     }
     function restartGame(){
       correctStreak=0; selectedAvatarIndex=null;
